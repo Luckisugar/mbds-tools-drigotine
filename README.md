@@ -1,4 +1,4 @@
-# Ferramenta DMBDS - Drigotine Minecraft Minecraft BeDrock Server
+# Ferramenta DMBDS - Drigotine Minecraft BeDrock Server
 
 Ferramenta de PowerShell fácil de usar para instalar e gerenciar addons/mods em um **Minecraft Bedrock Server (BDS)**.
 
@@ -34,7 +34,7 @@ Os scripts cuidam de:
 
 ## Vídeo de Demonstração
 
-[Adicione o link do seu vídeo aqui após o upload]
+TA PRA FAZER O VIDEO AINDA.
 
 ## Estrutura de Pastas
 
