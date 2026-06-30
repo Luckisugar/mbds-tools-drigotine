@@ -1,19 +1,19 @@
-# Ferramentas BDS - Instaladores de Mods para Servidor Dedicado Minecraft Bedrock
+# Ferramenta DMBDS - Drigotine Minecraft Minecraft BeDrock Server
 
-Ferramentas PowerShell fáceis de usar para instalar e gerenciar addons/mods em um **Servidor Dedicado Minecraft Bedrock (BDS)**.
+Ferramenta de PowerShell fácil de usar para instalar e gerenciar addons/mods em um **Minecraft Bedrock Server (BDS)**.
 
 Construídas do zero para facilitar a vida ao lidar com arquivos `.mcaddon` e `.mcpack`.
 
 ## Recursos
 
-- **BDS-Installers-Launcher** - Menu simples para executar tudo
+- **BDS-Installers-Launcher** - Menu simples para executar os outros negocio ai.
 - **BDS-Mcaddon-Installer** - Lida com pacotes .mcaddon (BP + RP)
 - **BDS-Mcpack-Installer** - Suporte flexível para arquivos .mcpack únicos ou separados (BP/RP)
-- **BDS-Uninstaller** - Remove mods de um mundo de forma limpa (com opção de deletar pastas)
+- **BDS-Uninstaller** - Remove mods de um mundo de forma rapida
 
 ## Início Rápido
 
-1. Coloque seus arquivos `.mcaddon` e/ou `.mcpack` na mesma pasta dos scripts (ou no local esperado).
+1. Coloque seus arquivos `.mcaddon` e/ou `.mcpack` na pasta server/"UNPACKED MODS", se ela não existir crie ela, essa pasta é criada automaticamente rodando o script de .mcaddon.
 2. Clique duplo em `BDS-ADDON INSTALLER.bat`
 3. Siga o menu na tela.
 
@@ -24,9 +24,9 @@ Os scripts cuidam de:
 
 ## Requisitos
 
-- Windows
+- Windows 11
 - PowerShell (Windows PowerShell 5.1 ou PowerShell 7+ recomendado)
-- Um Servidor Dedicado Bedrock
+- inteligência
 
 ## Vídeo de Demonstração
 
@@ -46,46 +46,12 @@ BDS drigotine/
     └── BDS-Uninstaller.ps1
 ```
 
-## Como Usar (Avançado)
 
-Você também pode executar os scripts diretamente:
-```powershell
-pwsh .\TOOLS\BDS-Installers-Launcher.ps1
-```
 
-## Preparando um Servidor Mínimo (De-bloat para Compartilhamento)
+Usuários só precisam: extrair, rodar o .exe ou o .bat.
+se quiser, instala mods via o instalador.
 
-Para criar uma versão compacta do servidor BDS para compartilhar:
-
-1. Na raiz do servidor (ex: bedrock-server-1.26.32.2), remova apenas o que não é vital:
-   - UNPACKED MODS (bloat grande de mods descompactados)
-   - development_behavior_packs, development_resource_packs, development_skin_packs
-   - world_templates
-   - bedrock_server_how_to.html
-   - packet-statistics.txt
-   - release-notes.txt
-
-2. **Mantenha obrigatoriamente**:
-   - bedrock_server.exe
-   - server.properties
-   - permissions.json
-   - allowlist.json
-   - packetlimitconfig.json
-   - profanity_filter.wlist
-   - config/
-   - data/
-   - definitions/
-   - behavior_packs/ (com customs e vanilla)
-   - resource_packs/ (com customs e vanilla)
-   - worlds/
-   - TOOLS/ (nossas ferramentas)
-   - BDS-ADDON INSTALLER.bat
-
-3. Isso reduz drasticamente o tamanho para zipar/compactar.
-
-4. Usuários só precisam: extrair, rodar o .exe ou o .bat, instalar mods via o instalador.
-
-**Atenção**: Nunca delete os packs, worlds ou o exe. O servidor precisa deles para rodar.
+**Atenção**: Nunca delete os tools, worlds ou o .bat. vai quebrar tudo zé.
 
 ## Contribuindo
 
