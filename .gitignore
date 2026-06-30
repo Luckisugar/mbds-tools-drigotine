@@ -1,0 +1,11 @@
+# Ignore common temp files
+*.tmp
+*.log
+Thumbs.db
+
+# If you ever add full server stuff later
+worlds/
+logs/
+libraries/
+*.jar
+*.exe
