@@ -1,38 +1,38 @@
-# BDS Tools - Minecraft Bedrock Dedicated Server Mod Installers
+# Ferramentas BDS - Instaladores de Mods para Servidor Dedicado Minecraft Bedrock
 
-Easy-to-use PowerShell tools for installing and managing addons/mods on a **Minecraft Bedrock Dedicated Server (BDS)**.
+Ferramentas PowerShell fáceis de usar para instalar e gerenciar addons/mods em um **Servidor Dedicado Minecraft Bedrock (BDS)**.
 
-Built from scratch to make life easier when dealing with `.mcaddon` and `.mcpack` files.
+Construídas do zero para facilitar a vida ao lidar com arquivos `.mcaddon` e `.mcpack`.
 
-## Features
+## Recursos
 
-- **BDS-Installers-Launcher** - Simple menu to run everything
-- **BDS-Mcaddon-Installer** - Handles bundled `.mcaddon` files (BP + RP)
-- **BDS-Mcpack-Installer** - Flexible support for single or separate `.mcpack` files (BP/RP)
-- **BDS-Uninstaller** - Cleanly remove mods from a world (with option to delete files)
+- **BDS-Installers-Launcher** - Menu simples para executar tudo
+- **BDS-Mcaddon-Installer** - Lida com pacotes .mcaddon (BP + RP)
+- **BDS-Mcpack-Installer** - Suporte flexível para arquivos .mcpack únicos ou separados (BP/RP)
+- **BDS-Uninstaller** - Remove mods de um mundo de forma limpa (com opção de deletar pastas)
 
-## Quick Start
+## Início Rápido
 
-1. Place your `.mcaddon` and/or `.mcpack` files in the same folder as the scripts (or the location expected by the scripts).
-2. Double-click `BDS-ADDON INSTALLER.bat`
-3. Follow the on-screen menu.
+1. Coloque seus arquivos `.mcaddon` e/ou `.mcpack` na mesma pasta dos scripts (ou no local esperado).
+2. Clique duplo em `BDS-ADDON INSTALLER.bat`
+3. Siga o menu na tela.
 
-The scripts handle:
-- Unpacking
-- Copying to `behavior_packs` / `resource_packs`
-- Registering UUIDs in your world's `world_behavior_packs.json` and `world_resource_packs.json`
+Os scripts cuidam de:
+- Descompactar
+- Copiar para `behavior_packs` / `resource_packs`
+- Registrar UUIDs nos JSONs do seu mundo `world_behavior_packs.json` e `world_resource_packs.json`
 
-## Requirements
+## Requisitos
 
 - Windows
-- PowerShell (Windows PowerShell 5.1 or PowerShell 7+ recommended)
-- A Bedrock Dedicated Server
+- PowerShell (Windows PowerShell 5.1 ou PowerShell 7+ recomendado)
+- Um Servidor Dedicado Bedrock
 
-## Demo Video
+## Vídeo de Demonstração
 
-[Add your video link here after uploading]
+[Adicione o link do seu vídeo aqui após o upload]
 
-## Folder Structure
+## Estrutura de Pastas
 
 ```
 BDS drigotine/
@@ -46,19 +46,19 @@ BDS drigotine/
     └── BDS-Uninstaller.ps1
 ```
 
-## How to Use (Advanced)
+## Como Usar (Avançado)
 
-You can also run the scripts directly:
+Você também pode executar os scripts diretamente:
 ```powershell
 pwsh .\TOOLS\BDS-Installers-Launcher.ps1
 ```
 
-## Contributing
+## Contribuindo
 
-These tools were developed iteratively. Improvements welcome!
+Essas ferramentas foram desenvolvidas de forma iterativa. Melhorias são bem-vindas!
 
-## License
+## Licença
 
-Feel free to use and modify. 
+Sinta-se à vontade para usar e modificar.
 
-Created while building a custom Bedrock server setup.
+Criado enquanto construía um setup custom de servidor Bedrock.

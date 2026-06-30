@@ -1,7 +1,12 @@
 # BDS-Mcpack-Installer.ps1
-# Tool for installing .mcpack files (single or separate BP/RP)
-# Similar workflow to the .mcaddon tool with all previous improvements
-# Run from server root: pwsh .\TOOLS\BDS-Mcpack-Installer.ps1
+# Ferramenta para instalar arquivos .mcpack (único ou BP/RP separados)
+# Fluxo similar à ferramenta .mcaddon com todas as melhorias anteriores
+# Execute a partir da raiz do servidor: pwsh .\TOOLS\BDS-Mcpack-Installer.ps1
+
+param(
+    [ValidateSet("en","pt")]
+    [string]$Lang = "en"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -9,8 +14,135 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root = Split-Path -Parent $scriptDir
 
 if (-not (Test-Path (Join-Path $root "bedrock_server.exe"))) {
-    Write-Host "Error: Could not find bedrock_server.exe. Run from server root." -ForegroundColor Red
+    if ($Lang -eq "pt") {
+        Write-Host "Erro: Não foi possível encontrar o bedrock_server.exe. Execute a partir da raiz do servidor." -ForegroundColor Red
+    } else {
+        Write-Host "Error: Could not find bedrock_server.exe. Run from server root." -ForegroundColor Red
+    }
     exit 1
+}
+
+function Get-Text {
+    param([string]$Key, [object[]]$Args = @())
+    if ($Lang -eq "pt") {
+        $base = switch ($Key) {
+            "HeaderTitle" { "=== Instalador Mcpack Bedrock ===" }
+            "Server" { "Servidor: {0}" }
+            "Mod" { "Mod: {0}" }
+            "BP" { "BP: {0}" }
+            "RP" { "RP: {0}" }
+            "Footer" { "Use números. Ctrl+C para sair a qualquer momento." }
+            "NoMcpack" { "Nenhum .mcpack encontrado em {0}" }
+            "SelectMcpack" { "=== Selecionar arquivos .mcpack ===" }
+            "AvailableMcpack" { "Arquivos .mcpack disponíveis:" }
+            "HowProvided" { "Como este mod é fornecido?" }
+            "Single" { "1. Único .mcpack que é o mod (BP ou RP ou ambos dentro)" }
+            "Two" { "2. Dois .mcpack separados (um BP, um RP)" }
+            "Choose1or2" { "Escolha 1 ou 2" }
+            "ChooseMcpackNumber" { "Escolha o número do .mcpack" }
+            "Invalid" { "Inválido." }
+            "UnpackedTo" { "Descompactado para {0}" }
+            "ContainsMultiple" { "`nEste .mcpack contém múltiplos packs dentro:" }
+            "ChooseForBP" { "Escolha número para Behavior Pack (0 para nenhum)" }
+            "ChooseForRP" { "Escolha número para Resource Pack (0 para nenhum)" }
+            "SinglePackDetected" { "`nPack único detectado neste .mcpack." }
+            "IsBPOrRP" { "É Behavior Pack ou Resource Pack?" }
+            "ChooseBP" { "1. Behavior Pack (BP)" }
+            "ChooseRP" { "2. Resource Pack (RP)" }
+            "ChooseMcpackForBP" { "`nEscolha .mcpack para Behavior Pack:" }
+            "NumberForBP" { "Número para BP .mcpack (0 para nenhum)" }
+            "ChooseSubForBP" { "Escolha sub para BP" }
+            "NameForBP" { "Nome para este BP na pasta oficial" }
+            "ChooseMcpackForRP" { "`nEscolha .mcpack para Resource Pack:" }
+            "NumberForRP" { "Número para RP .mcpack (0 para nenhum)" }
+            "ChooseSubForRP" { "Escolha sub para RP" }
+            "NameForRP" { "Nome para este RP na pasta oficial" }
+            "InstallSummary" { "=== Resumo da Instalação ===" }
+            "ModProcessed" { "Mod processado." }
+            "CurrentCustom" { "Packs oficiais atuais (apenas custom):" }
+            "BehaviorPacks" { "Behavior packs:" }
+            "ResourcePacks" { "Resource packs:" }
+            "DeletedMcpack" { " .mcpack deletado: {0}" }
+            "SelectWorld" { "=== Selecionar Mundo ===" }
+            "NoWorlds" { "Nenhum mundo encontrado" }
+            "ServerRanOnce" { "o server.exe foi executado pelo menos uma vez???" }
+            "Refresh" { "1. Atualizar lista de mundos" }
+            "Discard" { "2. Descartar alterações e sair (remove packs instalados, mantém .mcpack)" }
+            "ChooseOption" { "Escolha a opção" }
+            "Worlds" { "Mundos:" }
+            "ChooseWorldNumber" { "Escolha o número do mundo" }
+            "SelectedWorld" { "Mundo selecionado: {0}" }
+            "Complete" { "=== Completo ===" }
+            "Success" { "=== Sucesso ===" }
+            "PacksRegistered" { "Packs registrados para o mundo '{0}'." }
+            "NameStoredBP" { "Nome do BP armazenado: {0}" }
+            "NameStoredRP" { "Nome do RP armazenado: {0}" }
+            "CurrentlyInstalled" { "`nAtualmente instalado no mundo '{0}' (dos jsons):" }
+            "RestartServer" { "Reinicie o servidor para testar." }
+            default { $Key }
+        }
+    } else {
+        $base = switch ($Key) {
+            "HeaderTitle" { "=== Bedrock Mcpack Installer ===" }
+            "Server" { "Server: {0}" }
+            "Mod" { "Mod: {0}" }
+            "BP" { "BP: {0}" }
+            "RP" { "RP: {0}" }
+            "Footer" { "Use numbers. Ctrl+C to exit anytime." }
+            "NoMcpack" { "No .mcpack found in {0}" }
+            "SelectMcpack" { "=== Select .mcpack file(s) ===" }
+            "AvailableMcpack" { "Available .mcpack files:" }
+            "HowProvided" { "How is this mod provided?" }
+            "Single" { "1. Single .mcpack that is the mod (BP or RP or both inside)" }
+            "Two" { "2. Two separate .mcpack files (one BP, one RP)" }
+            "Choose1or2" { "Choose 1 or 2" }
+            "ChooseMcpackNumber" { "Choose the .mcpack number" }
+            "Invalid" { "Invalid." }
+            "UnpackedTo" { "Unpacked to {0}" }
+            "ContainsMultiple" { "`nThis .mcpack contains multiple packs inside:" }
+            "ChooseForBP" { "Choose number for Behavior Pack (0 for none)" }
+            "ChooseForRP" { "Choose number for Resource Pack (0 for none)" }
+            "SinglePackDetected" { "`nSingle pack detected in this .mcpack." }
+            "IsBPOrRP" { "Is this a Behavior Pack or Resource Pack?" }
+            "ChooseBP" { "1. Behavior Pack (BP)" }
+            "ChooseRP" { "2. Resource Pack (RP)" }
+            "ChooseMcpackForBP" { "`nChoose .mcpack for Behavior Pack:" }
+            "NumberForBP" { "Number for BP .mcpack (0 for none)" }
+            "ChooseSubForBP" { "Choose sub for BP" }
+            "NameForBP" { "Name for this BP in official folder" }
+            "ChooseMcpackForRP" { "`nChoose .mcpack for Resource Pack:" }
+            "NumberForRP" { "Number for RP .mcpack (0 for none)" }
+            "ChooseSubForRP" { "Choose sub for RP" }
+            "NameForRP" { "Name for this RP in official folder" }
+            "InstallSummary" { "=== Installation Summary ===" }
+            "ModProcessed" { "Mod processed." }
+            "CurrentCustom" { "Current official (custom only):" }
+            "BehaviorPacks" { "Behavior packs:" }
+            "ResourcePacks" { "Resource packs:" }
+            "DeletedMcpack" { "Deleted .mcpack: {0}" }
+            "SelectWorld" { "=== Select World ===" }
+            "NoWorlds" { "No worlds found" }
+            "ServerRanOnce" { "was the server.exe ran atleast once???" }
+            "Refresh" { "1. Refresh world list" }
+            "Discard" { "2. Discard changes and leave (removes installed packs, keeps .mcpack)" }
+            "ChooseOption" { "Choose option" }
+            "Worlds" { "Worlds:" }
+            "ChooseWorldNumber" { "Choose world number" }
+            "SelectedWorld" { "Selected world: {0}" }
+            "Complete" { "=== Complete ===" }
+            "Success" { "=== Success ===" }
+            "PacksRegistered" { "Packs registered for world '{0}'." }
+            "NameStoredBP" { "BP name stored: {0}" }
+            "NameStoredRP" { "RP name stored: {0}" }
+            "CurrentlyInstalled" { "`nCurrently installed in world '{0}' (from jsons):" }
+            "RestartServer" { "Restart the server to test." }
+            default { $Key }
+        }
+    }
+    if ($Args.Count -gt 0) {
+        return ($base -f $Args)
+    }
+    return $base
 }
 
 $unpackedDir = Join-Path $root "UNPACKED MODS"
@@ -25,11 +157,11 @@ $mcpackSourceDir = Join-Path $root "UNPACKED MODS"
 
 function ShowHeader($title) {
     Clear-Host
-    Write-Host "=== Bedrock Mcpack Installer ===" -ForegroundColor Cyan
-    Write-Host "Server: $root" -ForegroundColor Gray
-    if ($modBase) { Write-Host "Mod: $modBase" -ForegroundColor Yellow }
-    if ($bpName) { Write-Host "BP: $bpName" -ForegroundColor Yellow }
-    if ($rpName) { Write-Host "RP: $rpName" -ForegroundColor Yellow }
+    Write-Host (Get-Text "HeaderTitle") -ForegroundColor Cyan
+    Write-Host (Get-Text "Server" $root) -ForegroundColor Gray
+    if ($modBase) { Write-Host (Get-Text "Mod" $modBase) -ForegroundColor Yellow }
+    if ($bpName) { Write-Host (Get-Text "BP" $bpName) -ForegroundColor Yellow }
+    if ($rpName) { Write-Host (Get-Text "RP" $rpName) -ForegroundColor Yellow }
     Write-Host ""
     Write-Host "=== $title ===" -ForegroundColor Cyan
     Write-Host ""
@@ -38,7 +170,7 @@ function ShowHeader($title) {
 function ShowFooter {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "Use numbers. Ctrl+C to exit anytime." -ForegroundColor DarkGray
+    Write-Host (Get-Text "Footer") -ForegroundColor DarkGray
 }
 
 function Get-PackInfo($packPath) {
@@ -111,24 +243,24 @@ function Copy-PackWithCheck($sourceFolder, $destDir, $name, $packType) {
 }
 
 # === New flexible .mcpack handling ===
-ShowHeader "Select .mcpack file(s)"
+ShowHeader (Get-Text "SelectMcpack")
 $mcpacks = Get-ChildItem -Path $mcpackSourceDir -Filter "*.mcpack" -ErrorAction SilentlyContinue
 if ($mcpacks.Count -eq 0) {
-    Write-Host "No .mcpack found in $mcpackSourceDir"
+    Write-Host (Get-Text "NoMcpack" $mcpackSourceDir)
     exit
 }
 
-Write-Host "Available .mcpack files:"
+Write-Host (Get-Text "AvailableMcpack")
 for ($i=0; $i -lt $mcpacks.Count; $i++) {
     Write-Host "$($i+1). $($mcpacks[$i].Name)"
 }
 
 # Ask for setup type
 Write-Host ""
-Write-Host "How is this mod provided?"
-Write-Host "1. Single .mcpack that is the mod (BP or RP or both inside)"
-Write-Host "2. Two separate .mcpack files (one BP, one RP)"
-$setupType = Read-Host "Choose 1 or 2"
+Write-Host (Get-Text "HowProvided")
+Write-Host (Get-Text "Single")
+Write-Host (Get-Text "Two")
+$setupType = Read-Host (Get-Text "Choose1or2")
 
 $bpName = $null
 $rpName = $null
@@ -226,22 +358,23 @@ if ($setupType -eq "1") {
     if ($bC -ne "0") {
         $bpMc = $mcpacks[[int]$bC - 1]
         $usedMcpackFiles += $bpMc
-        $bExtract = Join-Path $unpackedDir ($bpMc.BaseName + "_extract")
+        $safeBase = ($bpMc.BaseName -replace '[\[\](){}\s+]', '_')
+        $bExtract = Join-Path $unpackedDir ($safeBase + "_extract")
         if (Test-Path $bExtract) { Remove-Item $bExtract -Recurse -Force }
-        $t = Join-Path $env:TEMP ($bpMc.BaseName + ".zip")
+        $t = Join-Path $env:TEMP ($safeBase + ".zip")
         Copy-Item $bpMc.FullName $t -Force
         Expand-Archive $t $bExtract -Force
         Remove-Item $t
         $bRoots = Get-ChildItem $bExtract -Directory | Where-Object { Test-Path (Join-Path $_.FullName "manifest.json") }
         if ($bRoots.Count -gt 1) {
             for ($i=0; $i -lt $bRoots.Count; $i++) { Write-Host "$($i+1). $($bRoots[$i].Name)" }
-            $sb = Read-Host "Choose sub for BP"
+            $sb = Read-Host (Get-Text "ChooseSubForBP")
             $bpFolderPath = $bRoots[[int]$sb-1].FullName
         } else {
             $bpFolderPath = if ($bRoots.Count -eq 1) { $bRoots[0].FullName } else { $bExtract }
         }
         $bpInfo = Get-PackInfo $bpFolderPath
-        $bpName = Read-Host "Name for this BP in official folder"
+        $bpName = Read-Host (Get-Text "NameForBP")
     }
 
     # RP

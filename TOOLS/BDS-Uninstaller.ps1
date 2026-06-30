@@ -1,9 +1,14 @@
 # BDS-Uninstaller.ps1
-# Tool to uninstall mods from a world.
-# Removes entries from world_behavior_packs.json / world_resource_packs.json
-# Optionally deletes the corresponding folders from behavior_packs / resource_packs.
-# Matches the style, robustness and UX of the installer tools.
-# Run from server root: pwsh .\TOOLS\BDS-Uninstaller.ps1
+# Ferramenta para desinstalar mods de um mundo.
+# Remove entradas dos arquivos world_behavior_packs.json / world_resource_packs.json
+# Opcionalmente deleta as pastas correspondentes de behavior_packs / resource_packs.
+# Combina com o estilo, robustez e UX das ferramentas de instalação.
+# Execute a partir da raiz do servidor: pwsh .\TOOLS\BDS-Uninstaller.ps1
+
+param(
+    [ValidateSet("en","pt")]
+    [string]$Lang = "en"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -11,9 +16,105 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $root = Split-Path -Parent $scriptDir
 
 if (-not (Test-Path (Join-Path $root "bedrock_server.exe"))) {
-    Write-Host "Error: Could not find bedrock_server.exe in parent of TOOLS folder." -ForegroundColor Red
-    Write-Host "Run the script from the server root like: pwsh .\TOOLS\BDS-Uninstaller.ps1"
+    if ($Lang -eq "pt") {
+        Write-Host "Erro: Não foi possível encontrar o bedrock_server.exe na pasta pai de TOOLS." -ForegroundColor Red
+        Write-Host "Execute o script a partir da raiz do servidor como: pwsh .\TOOLS\BDS-Uninstaller.ps1"
+    } else {
+        Write-Host "Error: Could not find bedrock_server.exe in parent of TOOLS folder." -ForegroundColor Red
+        Write-Host "Run the script from the server root like: pwsh .\TOOLS\BDS-Uninstaller.ps1"
+    }
     exit 1
+}
+
+function Get-Text {
+    param([string]$Key, [object[]]$Args = @())
+    if ($Lang -eq "pt") {
+        $base = switch ($Key) {
+            "HeaderTitle" { "=== Desinstalador Bedrock ===" }
+            "Server" { "Servidor: {0}" }
+            "SelectWorld" { "=== Selecionar Mundo ===" }
+            "NoWorlds" { "Nenhum mundo encontrado." }
+            "ServerRanOnce" { "o server.exe foi executado pelo menos uma vez???" }
+            "Refresh" { "1. Atualizar lista de mundos" }
+            "Exit" { "2. Sair" }
+            "Choose" { "Escolha" }
+            "Worlds" { "Mundos:" }
+            "ChooseWorldNumber" { "Escolha o número do mundo" }
+            "InvalidChoice" { "Escolha inválida." }
+            "InstalledPacks" { "=== Packs Instalados em {0} ===" }
+            "NoCustomPacks" { "Nenhum pack custom encontrado registrado para o mundo '{0}'." }
+            "NothingToUninstall" { "Nada para desinstalar." }
+            "ChoosePack" { "Escolha o pack para desinstalar" }
+            "Cancelled" { "Cancelado." }
+            "UninstallConfirmation" { "=== Confirmação de Desinstalação ===" }
+            "World" { "Mundo: {0}" }
+            "Pack" { "Pack: {0}" }
+            "BehaviorPackUUID" { "  Behavior Pack UUID:  {0}   v{1}" }
+            "ResourcePackUUID" { "  Resource Pack UUID:  {0}   v{1}" }
+            "FoundOnDisk" { "Encontrado no disco:" }
+            "DeleteFolders" { "Deletar as pastas do pack do disco também? (s/n)" }
+            "NoFoldersFound" { "Nenhuma pasta correspondente encontrada no disco (já removida ou nome de pasta diferente)." -ForegroundColor Yellow }
+            "ThisWill" { "Isso vai:" }
+            "RemoveRegistration" { "  - Remover o registro dos arquivos json do mundo" }
+            "DeleteFoldersAbove" { "  - DELETAR as pastas acima" }
+            "LeaveFolders" { "  - Deixar as pastas no disco (apenas remover o registro)" }
+            "Proceed" { "Prosseguir? (s/n)" }
+            "DeletedFolder" { "Pasta deletada: {0}" }
+            "UninstallComplete" { "=== Desinstalação Completa ===" }
+            "Removed" { "Removido: {0}" }
+            "FoldersDeleted" { "Pastas dos packs foram deletadas." }
+            "FoldersLeft" { "Pastas dos packs foram deixadas no disco." }
+            "UpdatedWorldFiles" { "Arquivos do mundo atualizados:" }
+            "RestartServer" { "Reinicie o servidor para aplicar as alterações." }
+            "Done" { "Pronto." }
+            default { $Key }
+        }
+    } else {
+        $base = switch ($Key) {
+            "HeaderTitle" { "=== Bedrock Uninstaller ===" }
+            "Server" { "Server: {0}" }
+            "SelectWorld" { "=== Select World ===" }
+            "NoWorlds" { "No worlds found." }
+            "ServerRanOnce" { "was the server.exe ran at least once???" }
+            "Refresh" { "1. Refresh world list" }
+            "Exit" { "2. Exit" }
+            "Choose" { "Choose" }
+            "Worlds" { "Worlds:" }
+            "ChooseWorldNumber" { "Choose world number" }
+            "InvalidChoice" { "Invalid choice." }
+            "InstalledPacks" { "=== Installed Packs in {0} ===" }
+            "NoCustomPacks" { "No custom packs found registered for world '{0}'." }
+            "NothingToUninstall" { "Nothing to uninstall." }
+            "ChoosePack" { "Choose pack to uninstall" }
+            "Cancelled" { "Cancelled." }
+            "UninstallConfirmation" { "=== Uninstall Confirmation ===" }
+            "World" { "World: {0}" }
+            "Pack" { "Pack: {0}" }
+            "BehaviorPackUUID" { "  Behavior Pack UUID:  {0}   v{1}" }
+            "ResourcePackUUID" { "  Resource Pack UUID:  {0}   v{1}" }
+            "FoundOnDisk" { "Found on disk:" }
+            "DeleteFolders" { "Delete the pack folder(s) from disk as well? (y/n)" }
+            "NoFoldersFound" { "No matching folders found on disk (already removed or different folder name)." }
+            "ThisWill" { "This will:" }
+            "RemoveRegistration" { "  - Remove pack registration from the world's json files" }
+            "DeleteFoldersAbove" { "  - DELETE the folders above" }
+            "LeaveFolders" { "  - Leave the folders on disk (just unregister them)" }
+            "Proceed" { "Proceed? (y/n)" }
+            "DeletedFolder" { "Deleted folder: {0}" }
+            "UninstallComplete" { "=== Uninstall Complete ===" }
+            "Removed" { "Removed: {0}" }
+            "FoldersDeleted" { "Pack folders were deleted." }
+            "FoldersLeft" { "Pack folders were left on disk." }
+            "UpdatedWorldFiles" { "Updated world files:" }
+            "RestartServer" { "Restart the server to apply changes." }
+            "Done" { "Done." }
+            default { $Key }
+        }
+    }
+    if ($Args.Count -gt 0) {
+        return ($base -f $Args)
+    }
+    return $base
 }
 
 $bpDir = Join-Path $root "behavior_packs"
@@ -22,8 +123,8 @@ $worldsDir = Join-Path $root "worlds"
 
 function ShowHeader($title) {
     Clear-Host
-    Write-Host "=== Bedrock Uninstaller ===" -ForegroundColor Cyan
-    Write-Host "Server: $root" -ForegroundColor Gray
+    Write-Host (Get-Text "HeaderTitle") -ForegroundColor Cyan
+    Write-Host (Get-Text "Server" $root) -ForegroundColor Gray
     Write-Host ""
     Write-Host "=== $title ===" -ForegroundColor Cyan
     Write-Host ""
@@ -32,7 +133,7 @@ function ShowHeader($title) {
 function ShowFooter {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "Use numbers. Ctrl+C to exit." -ForegroundColor DarkGray
+    Write-Host (Get-Text "Footer") -ForegroundColor DarkGray
 }
 
 function Get-PackInfo($packPath) {
@@ -144,18 +245,18 @@ function Get-FolderByUuid($baseDir, $uuid) {
 
 # === Main flow ===
 
-ShowHeader "Select World"
+ShowHeader (Get-Text "SelectWorld")
 
 :worldLoop while ($true) {
     $worldList = @(Get-ChildItem $worldsDir -Directory | Select-Object -ExpandProperty Name)
     if ($worldList.Count -eq 0) {
-        Write-Host "No worlds found."
-        Write-Host "was the server.exe ran at least once???"
+        Write-Host (Get-Text "NoWorlds")
+        Write-Host (Get-Text "ServerRanOnce")
         Write-Host ""
-        Write-Host "Options:"
-        Write-Host "1. Refresh world list"
-        Write-Host "2. Exit"
-        $wOpt = Read-Host "Choose"
+        Write-Host (Get-Text "Options")
+        Write-Host (Get-Text "Refresh")
+        Write-Host (Get-Text "Exit")
+        $wOpt = Read-Host (Get-Text "Choose")
         if ($wOpt -eq "1") {
             continue :worldLoop
         } else {
@@ -163,15 +264,15 @@ ShowHeader "Select World"
         }
     }
 
-    Write-Host "Worlds:"
+    Write-Host (Get-Text "Worlds")
     for ($i = 0; $i -lt $worldList.Count; $i++) {
         Write-Host "$($i+1). $($worldList[$i])"
     }
 
     do {
-        $wChoice = Read-Host "Choose world number"
+        $wChoice = Read-Host (Get-Text "ChooseWorldNumber")
         $valid = $wChoice -match '^\d+$' -and [int]$wChoice -ge 1 -and [int]$wChoice -le $worldList.Count
-        if (-not $valid) { Write-Host "Invalid choice." -ForegroundColor Red }
+        if (-not $valid) { Write-Host (Get-Text "InvalidChoice") -ForegroundColor Red }
     } while (-not $valid)
 
     $worldName = $worldList[[int]$wChoice - 1]
@@ -205,13 +306,13 @@ foreach ($p in $rpPacks) {
 }
 
 if ($modMap.Count -eq 0) {
-    Write-Host "No custom packs found registered for world '$worldName'."
-    Write-Host "Nothing to uninstall."
+    Write-Host (Get-Text "NoCustomPacks" $worldName)
+    Write-Host (Get-Text "NothingToUninstall")
     ShowFooter
     exit
 }
 
-ShowHeader "Installed Packs in $worldName"
+ShowHeader (Get-Text "InstalledPacks" $worldName)
 
 $modList = @($modMap.Keys | Sort-Object)
 for ($i = 0; $i -lt $modList.Count; $i++) {
@@ -228,13 +329,13 @@ Write-Host ""
 Write-Host "0. Cancel"
 
 do {
-    $choice = Read-Host "Choose pack to uninstall"
+    $choice = Read-Host (Get-Text "ChoosePack")
     $valid = $choice -match '^\d+$' -and [int]$choice -ge 0 -and [int]$choice -le $modList.Count
-    if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+    if (-not $valid) { Write-Host (Get-Text "InvalidChoice") -ForegroundColor Red }
 } while (-not $valid)
 
 if ($choice -eq "0") {
-    Write-Host "Cancelled."
+    Write-Host (Get-Text "Cancelled")
     exit
 }
 
@@ -242,12 +343,12 @@ $chosenName = $modList[[int]$choice - 1]
 $modInfo = $modMap[$chosenName]
 
 Clear-Host
-Write-Host "=== Uninstall Confirmation ===" -ForegroundColor Cyan
-Write-Host "World: $worldName"
-Write-Host "Pack:  $chosenName"
+Write-Host (Get-Text "UninstallConfirmation") -ForegroundColor Cyan
+Write-Host (Get-Text "World" $worldName)
+Write-Host (Get-Text "Pack" $chosenName)
 Write-Host ""
-if ($modInfo.BP) { Write-Host "  Behavior Pack UUID:  $($modInfo.BP.Uuid)   v$($modInfo.BP.Version -join '.')" }
-if ($modInfo.RP) { Write-Host "  Resource Pack UUID:  $($modInfo.RP.Uuid)   v$($modInfo.RP.Version -join '.')" }
+if ($modInfo.BP) { Write-Host (Get-Text "BehaviorPackUUID" $modInfo.BP.Uuid ($modInfo.BP.Version -join '.')) }
+if ($modInfo.RP) { Write-Host (Get-Text "ResourcePackUUID" $modInfo.RP.Uuid ($modInfo.RP.Version -join '.')) }
 Write-Host ""
 
 # Resolve real folders using UUID (reliable)
@@ -257,31 +358,31 @@ if ($modInfo.BP) { $bpFolder = Get-FolderByUuid $bpDir $modInfo.BP.Uuid }
 if ($modInfo.RP) { $rpFolder = Get-FolderByUuid $rpDir $modInfo.RP.Uuid }
 
 if ($bpFolder -or $rpFolder) {
-    Write-Host "Found on disk:"
+    Write-Host (Get-Text "FoundOnDisk")
     if ($bpFolder) { Write-Host "  behavior_packs/$([System.IO.Path]::GetFileName($bpFolder))" }
     if ($rpFolder) { Write-Host "  resource_packs/$([System.IO.Path]::GetFileName($rpFolder))" }
 
     Write-Host ""
-    $delFolders = Read-Host "Delete the pack folder(s) from disk as well? (y/n)"
-    $doDeleteFolders = ($delFolders -eq 'y' -or $delFolders -eq 'Y')
+    $delFolders = Read-Host (Get-Text "DeleteFolders")
+    $doDeleteFolders = ($delFolders -eq 'y' -or $delFolders -eq 'Y' -or $delFolders -eq 's' -or $delFolders -eq 'S')
 } else {
-    Write-Host "No matching folders found on disk (already removed or different folder name)." -ForegroundColor Yellow
+    Write-Host (Get-Text "NoFoldersFound") -ForegroundColor Yellow
     $doDeleteFolders = $false
 }
 
 Write-Host ""
-Write-Host "This will:"
-Write-Host "  - Remove pack registration from the world's json files"
+Write-Host (Get-Text "ThisWill")
+Write-Host (Get-Text "RemoveRegistration")
 if ($doDeleteFolders) {
-    Write-Host "  - DELETE the folders above" -ForegroundColor Red
+    Write-Host (Get-Text "DeleteFoldersAbove") -ForegroundColor Red
 } else {
-    Write-Host "  - Leave the folders on disk (just unregister them)"
+    Write-Host (Get-Text "LeaveFolders")
 }
 Write-Host ""
 
-$confirm = Read-Host "Proceed? (y/n)"
-if ($confirm -ne 'y' -and $confirm -ne 'Y') {
-    Write-Host "Cancelled."
+$confirm = Read-Host (Get-Text "Proceed")
+if ($confirm -ne 'y' -and $confirm -ne 'Y' -and $confirm -ne 's' -and $confirm -ne 'S') {
+    Write-Host (Get-Text "Cancelled")
     exit
 }
 
@@ -299,25 +400,25 @@ if ($modInfo.RP) {
 if ($doDeleteFolders) {
     if ($bpFolder -and (Test-Path $bpFolder)) {
         Remove-Item $bpFolder -Recurse -Force
-        Write-Host "Deleted folder: $bpFolder" -ForegroundColor Yellow
+        Write-Host (Get-Text "DeletedFolder" $bpFolder) -ForegroundColor Yellow
     }
     if ($rpFolder -and (Test-Path $rpFolder)) {
         Remove-Item $rpFolder -Recurse -Force
-        Write-Host "Deleted folder: $rpFolder" -ForegroundColor Yellow
+        Write-Host (Get-Text "DeletedFolder" $rpFolder) -ForegroundColor Yellow
     }
 }
 
 Clear-Host
-Write-Host "=== Uninstall Complete ===" -ForegroundColor Green
-Write-Host "World: $worldName"
-Write-Host "Removed: $chosenName"
+Write-Host (Get-Text "UninstallComplete") -ForegroundColor Green
+Write-Host (Get-Text "World" $worldName)
+Write-Host (Get-Text "Removed" $chosenName)
 if ($doDeleteFolders) {
-    Write-Host "Pack folders were deleted."
+    Write-Host (Get-Text "FoldersDeleted")
 } else {
-    Write-Host "Pack folders were left on disk."
+    Write-Host (Get-Text "FoldersLeft")
 }
 Write-Host ""
-Write-Host "Updated world files:"
+Write-Host (Get-Text "UpdatedWorldFiles")
 
 if (Test-Path $bpJson) {
     Write-Host "`nworld_behavior_packs.json:"
@@ -329,7 +430,7 @@ if (Test-Path $rpJson) {
 }
 
 Write-Host ""
-Write-Host "Restart the server to apply changes." -ForegroundColor Yellow
+Write-Host (Get-Text "RestartServer") -ForegroundColor Yellow
 ShowFooter
 
-Write-Host "Done."
+Write-Host (Get-Text "Done")
