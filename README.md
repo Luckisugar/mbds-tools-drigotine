@@ -13,40 +13,52 @@ Built from scratch to make life easier when dealing with `.mcaddon` and `.mcpack
 
 ## Quick Start
 
-1. Put your `.mcaddon` / `.mcpack` files into the `BDS-TOOLS` folder (or wherever you configured).
+1. Place your `.mcaddon` and/or `.mcpack` files in the same folder as the scripts (or the location expected by the scripts).
 2. Double-click `BDS-ADDON INSTALLER.bat`
-3. Choose what you want to do from the menu.
+3. Follow the on-screen menu.
 
-The scripts automatically handle unpacking, copying to the correct `behavior_packs` / `resource_packs` folders, and registering them in your world's JSON files.
+The scripts handle:
+- Unpacking
+- Copying to `behavior_packs` / `resource_packs`
+- Registering UUIDs in your world's `world_behavior_packs.json` and `world_resource_packs.json`
 
 ## Requirements
 
 - Windows
-- PowerShell 5.1+ (or better, PowerShell 7+ / `pwsh`)
-- A running or set-up Bedrock Dedicated Server
+- PowerShell (Windows PowerShell 5.1 or PowerShell 7+ recommended)
+- A Bedrock Dedicated Server
 
 ## Demo Video
 
-[Link your video here when uploaded]
+[Add your video link here after uploading]
 
 ## Folder Structure
 
 ```
 BDS drigotine/
 ├── BDS-ADDON INSTALLER.bat
-└── BDS-TOOLS/
+├── .gitignore
+├── README.md
+└── TOOLS/
     ├── BDS-Installers-Launcher.ps1
     ├── BDS-Mcaddon-Installer.ps1
     ├── BDS-Mcpack-Installer.ps1
     └── BDS-Uninstaller.ps1
 ```
 
-## Contributing / Feedback
+## How to Use (Advanced)
 
-These were built iteratively. If you improve them, feel free to PR or open issues.
+You can also run the scripts directly:
+```powershell
+pwsh .\TOOLS\BDS-Installers-Launcher.ps1
+```
+
+## Contributing
+
+These tools were developed iteratively. Improvements welcome!
 
 ## License
 
-MIT - do whatever, just don't blame me if your server explodes.
+Feel free to use and modify. 
 
-Made with too much coffee and stubbornness.
+Created while building a custom Bedrock server setup.
