@@ -4,6 +4,10 @@ Ferramenta de PowerShell fácil de usar para instalar e gerenciar addons/mods em
 
 Construídas do zero para facilitar a vida ao lidar com arquivos `.mcaddon` e `.mcpack`.
 
+## DOWNLOAD
+
+- **Vá para seção Releases** - Se tu tiver pelo pc, na direita ali tem um "Server + Tool V####", é ali, baixa o server ou as tools lá.
+
 ## Recursos
 
 - **BDS-Installers-Launcher** - Menu simples para executar os outros negocio ai.
