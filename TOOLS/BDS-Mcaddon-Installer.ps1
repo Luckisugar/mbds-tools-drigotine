@@ -1,8 +1,8 @@
 # BDS-Mcaddon-Installer.ps1
-# Ferramenta para descompactar .mcaddon, selecionar pastas bp/rp, copiar para oficial com nome, registrar uuids com comentários no json do mundo.
-# IMPORTANT: Execute a partir da RAIZ DO SERVIDOR (não dentro de TOOLS):
-#   cd "C:\caminho\para\seu\servidor"
-#   pwsh .\TOOLS\BDS-Mcaddon-Installer.ps1
+# Ferramenta para descompactar .mcaddon, selecionar pastas bp/rp, copiar para oficial com nome, registrar uuids com comentarios no json do mundo.
+# IMPORTANT: Run from the SERVER ROOT (not inside TOOLS):
+#   cd "C:\path\to\your\server"
+#   powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcaddon-Installer.ps1"
 
 param(
     [ValidateSet("en","pt")]
@@ -17,66 +17,80 @@ $root = Split-Path -Parent $scriptDir
 
 if (-not (Test-Path (Join-Path $root "bedrock_server.exe"))) {
     if ($Lang -eq "pt") {
-        Write-Host "Erro: Não foi possível encontrar o bedrock_server.exe na pasta pai de TOOLS."
-        Write-Host "Execute o script a partir da raiz do servidor como: pwsh .\TOOLS\BDS-Mcaddon-Installer.ps1"
+        Write-Host "Erro: Nao foi possivel encontrar o bedrock_server.exe na pasta pai de TOOLS."
+        Write-Host 'Execute o script a partir da raiz do servidor como: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcaddon-Installer.ps1"'
     } else {
         Write-Host "Error: Could not find bedrock_server.exe in parent of TOOLS folder."
-        Write-Host "Run the script from the server root like: pwsh .\TOOLS\BDS-Mcaddon-Installer.ps1"
+        Write-Host 'Run the script from the server root like: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcaddon-Installer.ps1"'
     }
     exit 1
 }
 
 function Get-Text {
-    param([string]$Key, [object[]]$Args = @())
+    param(
+        [string]$Key,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [object[]]$Args
+    )
     if ($Lang -eq "pt") {
         $base = switch ($Key) {
             "HeaderTitle" { "=== Instalador de Addons Bedrock ===" }
             "Server" { "Servidor: {0}" }
             "Source" { "Fonte: {0}" }
-            "Footer" { "Use setas ou números. Ctrl+C para sair." }
+            "Footer" { "Use setas ou numeros. Ctrl+C para sair." }
             "NoMcaddon" { "Nenhum .mcaddon encontrado em {0}" }
             "SelectMcaddon" { "=== Selecionar .mcaddon ===" }
             "LookingIn" { "Procurando em: {0}" }
-            "AvailableMcaddons" { ".mcaddons disponíveis:" }
-            "ChooseNumber" { "Escolha o número" }
-            "InvalidChoice" { "Escolha inválida, digite um número entre 1 e {0}" }
+            "AvailableMcaddons" { ".mcaddons disponiveis:" }
+            "ChooseNumber" { "Escolha o numero" }
+            "InvalidChoice" { "Escolha invalida, digite um numero entre 1 e {0}" }
             "Selected" { "Selecionado: {0}" }
             "Unpacking" { "=== Descompactando ===" }
             "Mod" { "Mod: {0}" }
             "UnpackedTo" { "Descompactado para {0}" }
+            "NoSubfolders" { "Nenhum subpasta apos descompactar. Verifique {0}" }
+            "FoundNestedMcpacks" { "Encontrados {0} .mcpack aninhado(s), descompactando..." }
+            "SinglePackDetected" { "`nPack unico detectado neste .mcaddon." }
+            "IsBPOrRP" { "É Behavior Pack ou Resource Pack?" }
+            "ChooseBP" { "1. Behavior Pack (BP)" }
+            "ChooseRP" { "2. Resource Pack (RP)" }
+            "Choose1or2" { "Escolha 1 ou 2" }
             "SelectBP" { "=== Selecionar Behavior Pack ===" }
             "Unpacked" { "Descompactado: {0}" }
             "Subfolders" { "Subpastas no descompactado:" }
-            "NumberForBP" { "Número para a pasta BP" }
-            "InvalidTryAgain" { "Escolha inválida, tente novamente." }
+            "NumberForBP" { "Numero para a pasta BP" }
+            "InvalidTryAgain" { "Escolha invalida, tente novamente." }
             "NameForBP" { "Nome para este BP na pasta oficial" }
-            "InvalidName" { "Nome inválido (sem caracteres especiais ou vazio). Tente novamente." }
-            "FolderExists" { "Pasta '{0}' já existe em behavior_packs." }
+            "InvalidName" { "Nome invalido (sem caracteres especiais ou vazio). Tente novamente." }
+            "FolderExists" { "Pasta '{0}' ja existe em behavior_packs." }
             "Overwrite" { "Sobrescrever? (s/n)" }
             "Overwriting" { "Sobrescrevendo..." }
-            "SkippingBP" { "Pulando cópia do BP." }
+            "SkippingBP" { "Pulando copia do BP." }
             "SuccessBP" { "BP instalado com sucesso como '{0}' em behavior_packs" }
             "SelectRP" { "=== Selecionar Resource Pack ===" }
             "BP" { "BP: {0} (de {1})" }
+            "BPOnly" { "BP: {0}" }
+            "RPOnly" { "RP: {0}" }
             "BPSkipped" { "BP: Pulado" }
-            "NumberForRP" { "Número para a pasta RP" }
+            "NumberForRP" { "Numero para a pasta RP" }
             "SuccessRP" { "RP instalado com sucesso como '{0}' em resource_packs" }
             "RP skipped" { "RP pulado." }
-            "InstallSummary" { "=== Resumo da Instalação ===" }
+            "InstallSummary" { "=== Resumo da Instalacao ===" }
             "CurrentCustom" { "Packs oficiais atuais (apenas custom):" }
             "BehaviorPacks" { "Behavior packs:" }
             "ResourcePacks" { "Resource packs:" }
             "SelectWorld" { "=== Selecionar Mundo ===" }
             "NoWorlds" { "Nenhum mundo encontrado" }
             "ServerRanOnce" { "o server.exe foi executado pelo menos uma vez???" }
-            "Options" { "Opções:" }
+            "Options" { "Opcoes:" }
             "Refresh" { "1. Atualizar lista de mundos" }
-            "Discard" { "2. Descartar alterações e sair (remove packs instalados, mantém .mcaddon)" }
-            "ChooseOption" { "Escolha a opção" }
+            "Discard" { "2. Descartar alteracoes e sair (remove packs instalados, mantem .mcaddon)" }
+            "ChooseOption" { "Escolha a opcao" }
             "Worlds" { "Mundos:" }
-            "ChooseWorldNumber" { "Escolha o número do mundo" }
+            "ChooseWorldNumber" { "Escolha o numero do mundo" }
             "SelectedWorld" { "Mundo selecionado: {0}" }
             "World" { "Mundo: {0}" }
+            "EnterWorldName" { "Digite o nome do mundo ou numero da lista" }
             "Complete" { "=== Completo ===" }
             "Success" { "=== Sucesso ===" }
             "BPAndRPRegistered" { "BP e RP registrados para o mundo '{0}'." }
@@ -103,6 +117,13 @@ function Get-Text {
             "Unpacking" { "=== Unpacking ===" }
             "Mod" { "Mod: {0}" }
             "UnpackedTo" { "Unpacked to {0}" }
+            "NoSubfolders" { "No subfolders after unpack. Check {0}" }
+            "FoundNestedMcpacks" { "Found {0} nested .mcpack file(s), unpacking them..." }
+            "SinglePackDetected" { "`nSingle pack detected in this .mcaddon." }
+            "IsBPOrRP" { "Is this a Behavior Pack or Resource Pack?" }
+            "ChooseBP" { "1. Behavior Pack (BP)" }
+            "ChooseRP" { "2. Resource Pack (RP)" }
+            "Choose1or2" { "Choose 1 or 2" }
             "SelectBP" { "=== Select Behavior Pack ===" }
             "Unpacked" { "Unpacked: {0}" }
             "Subfolders" { "Subfolders in unpacked:" }
@@ -117,12 +138,13 @@ function Get-Text {
             "SuccessBP" { "Successfully installed BP as '{0}' in behavior_packs" }
             "SelectRP" { "=== Select Resource Pack ===" }
             "BP" { "BP: {0} (from {1})" }
+            "BPOnly" { "BP: {0}" }
+            "RPOnly" { "RP: {0}" }
             "BPSkipped" { "BP: Skipped" }
             "NumberForRP" { "Number for RP folder" }
             "SuccessRP" { "Successfully installed RP as '{0}' in resource_packs" }
             "RP skipped" { "RP skipped." }
             "SkippingRP" { "Skipping RP copy." }
-            "SkippingRP" { "Pulando cópia do RP." }
             "InstallSummary" { "=== Installation Summary ===" }
             "CurrentCustom" { "Current official (custom only):" }
             "BehaviorPacks" { "Behavior packs:" }
@@ -138,6 +160,7 @@ function Get-Text {
             "ChooseWorldNumber" { "Choose world number" }
             "SelectedWorld" { "Selected world: {0}" }
             "World" { "World: {0}" }
+            "EnterWorldName" { "Enter world name or number from list" }
             "Complete" { "=== Complete ===" }
             "Success" { "=== Success ===" }
             "BPAndRPRegistered" { "BP and RP registered for world '{0}'." }
@@ -149,8 +172,12 @@ function Get-Text {
             default { $Key }
         }
     }
-    if ($Args.Count -gt 0) {
-        return ($base -f $Args)
+    try {
+        if ($Args -and $Args.Count -gt 0) {
+            return ($base -f $Args)
+        }
+    } catch {
+        return $base
     }
     return $base
 }
@@ -161,6 +188,13 @@ $rpDir = Join-Path $root "resource_packs"
 $worldsDir = Join-Path $root "worlds"
 $originalDir = Join-Path $root "UNPACKED MODS"
 
+$bpDest = $null
+$rpDest = $null
+$bpFolder = $null
+$rpFolder = $null
+$bpInfo = $null
+$rpInfo = $null
+
 # Ensure folders
 @($unpackedDir, $bpDir, $rpDir, $worldsDir) | ForEach-Object {
     if (-not (Test-Path $_)) { New-Item -ItemType Directory -Path $_ -Force | Out-Null }
@@ -168,8 +202,8 @@ $originalDir = Join-Path $root "UNPACKED MODS"
 
 Clear-Host
 Write-Host (Get-Text "HeaderTitle") -ForegroundColor Cyan
-Write-Host (Get-Text "Server")
-Write-Host (Get-Text "Source")
+Write-Host (Get-Text "Server" $root)
+Write-Host (Get-Text "Source" $originalDir)
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 
@@ -216,9 +250,12 @@ function Write-WorldJson($path, $packId, $version, $modName) {
 }
 
 function Get-PackInfo($packPath) {
-    $man = Get-ChildItem $packPath -Recurse -Filter "manifest.json" | Select-Object -First 1
-    if (-not $man) { throw "No manifest in $packPath" }
-    $data = Get-Content $man.FullName -Raw | ConvertFrom-Json
+    $man = Get-ChildItem -LiteralPath $packPath -Recurse -Filter "manifest.json" | Select-Object -First 1
+    if (-not $man) { 
+        Write-Host "No manifest found in $packPath (searched recursively)" -ForegroundColor Red
+        throw "No manifest in $packPath" 
+    }
+    $data = [System.IO.File]::ReadAllText($man.FullName, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
     @{
         Uuid = $data.header.uuid
         Version = $data.header.version
@@ -228,13 +265,13 @@ function Get-PackInfo($packPath) {
 # List .mcaddon
 $mcaddons = Get-ChildItem -Path $originalDir -Filter "*.mcaddon" -ErrorAction SilentlyContinue
 if ($mcaddons.Count -eq 0) {
-    Write-Host (Get-Text "NoMcaddon")
+    Write-Host (Get-Text "NoMcaddon" $originalDir)
     exit
 }
 
 Clear-Host
 Write-Host (Get-Text "SelectMcaddon") -ForegroundColor Cyan
-Write-Host (Get-Text "LookingIn")
+Write-Host (Get-Text "LookingIn" $originalDir)
 Write-Host ""
 Write-Host (Get-Text "AvailableMcaddons")
 for ($i=0; $i -lt $mcaddons.Count; $i++) {
@@ -247,13 +284,13 @@ do {
 } while (-not $valid)
 $mcaddon = $mcaddons[[int]$choice - 1]
 $modBase = $mcaddon.BaseName
-Write-Host (Get-Text "Selected") -ForegroundColor Green
+Write-Host (Get-Text "Selected" $modBase) -ForegroundColor Green
 ShowFooter
 
 # Unpack
 Clear-Host
 Write-Host (Get-Text "Unpacking") -ForegroundColor Cyan
-Write-Host (Get-Text "Mod")
+Write-Host (Get-Text "Mod" $modBase)
 Write-Host ""
 $unpackPath = Join-Path $unpackedDir $modBase
 if (Test-Path $unpackPath) { Remove-Item $unpackPath -Recurse -Force }
@@ -261,23 +298,67 @@ $tempZip = Join-Path $env:TEMP "$modBase.zip"
 Copy-Item $mcaddon.FullName $tempZip -Force
 Expand-Archive -Path $tempZip -DestinationPath $unpackPath -Force
 Remove-Item $tempZip
-Write-Host (Get-Text "UnpackedTo") -ForegroundColor Green
+Write-Host (Get-Text "UnpackedTo" $unpackPath) -ForegroundColor Green
 ShowFooter
+
+# Auto-unpack any .mcpack files found inside the extracted .mcaddon
+# (some .mcaddon contain .mcpack archives instead of pre-extracted folders)
+$innerMcpacks = Get-ChildItem $unpackPath -Filter "*.mcpack" -Recurse
+if ($innerMcpacks.Count -gt 0) {
+    Write-Host (Get-Text "FoundNestedMcpacks" $innerMcpacks.Count) -ForegroundColor Green
+    $idx = 0
+    # resolve TEMP to full long path to avoid short name (~) issues
+    $tempRoot = $env:TEMP
+    if ($tempRoot) {
+        try { $tempRoot = (Get-Item -LiteralPath $tempRoot).FullName } catch {}
+    }
+    if (-not $tempRoot) { $tempRoot = [System.IO.Path]::GetTempPath() }
+    foreach ($mcp in $innerMcpacks) {
+        if ($mcp.PSIsContainer -or -not (Test-Path -LiteralPath $mcp.FullName -PathType Leaf)) {
+            Write-Host "Skipping non-file item: $($mcp.FullName)" -ForegroundColor Yellow
+            continue
+        }
+        $baseName = $mcp.BaseName
+        if ([string]::IsNullOrWhiteSpace($baseName)) {
+            $baseName = [System.IO.Path]::GetFileNameWithoutExtension($mcp.Name)
+        }
+        if ([string]::IsNullOrWhiteSpace($baseName)) {
+            $baseName = "pack$idx"
+        }
+        # sanitize for invalid path chars
+        $baseName = $baseName -replace '[\\/:*?"<>|]', '_'
+        $subDir = Join-Path $mcp.Directory $baseName
+        if (Test-Path -LiteralPath $subDir) { Remove-Item -LiteralPath $subDir -Recurse -Force }
+        # use guid for temp to avoid any name issues
+        $unique = [guid]::NewGuid().ToString()
+        $t = Join-Path $tempRoot ($unique + ".zip")
+        Copy-Item -LiteralPath $mcp.FullName -Destination $t -Force
+        if (-not (Test-Path -LiteralPath $t)) {
+            Write-Host "Failed to copy temp file for $($mcp.Name)" -ForegroundColor Red
+            continue
+        }
+        Expand-Archive -Path $t -DestinationPath $subDir -Force
+        Remove-Item -LiteralPath $t -Force
+        Remove-Item -LiteralPath $mcp.FullName -Force
+        $idx++
+    }
+}
 
 $skipBP = $false
 $skipRP = $false
 
-# Get subfolders
+# Get subfolders - list top level subfolders (original behaviour)
+# drill down logic will find the actual pack with manifest inside chosen ones (for nested cases)
 $subs = Get-ChildItem $unpackPath -Directory
 if ($subs.Count -eq 0) {
-    Write-Host "No subfolders after unpack. Check $unpackPath"
+    Write-Host (Get-Text "NoSubfolders" $unpackPath)
     exit
 }
 
 Clear-Host
 Write-Host (Get-Text "SelectBP") -ForegroundColor Cyan
-Write-Host (Get-Text "Mod")
-Write-Host (Get-Text "Unpacked")
+Write-Host (Get-Text "Mod" $modBase)
+Write-Host (Get-Text "Unpacked" $unpackPath)
 Write-Host ""
 Write-Host (Get-Text "Subfolders")
 for ($i=0; $i -lt $subs.Count; $i++) {
@@ -290,7 +371,27 @@ do {
     $valid = $bpChoice -match '^\d+$' -and [int]$bpChoice -ge 1 -and [int]$bpChoice -le $subs.Count
     if (-not $valid) { Write-Host (Get-Text "InvalidTryAgain") -ForegroundColor Red }
 } while (-not $valid)
-$bpFolder = $subs[[int]$bpChoice - 1]
+$chosenSub = $subs[[int]$bpChoice - 1]
+
+# Drill down inside the chosen sub to find the actual pack root that has manifest.json
+# (handles cases where chosen sub is a container and the real pack is nested inside)
+$packRoots = Get-ChildItem -LiteralPath $chosenSub.FullName -Directory | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "manifest.json") }
+if ($packRoots.Count -eq 0) {
+    if (Test-Path -LiteralPath (Join-Path $chosenSub.FullName "manifest.json")) {
+        $bpFolder = $chosenSub
+    } else {
+        $manifests = Get-ChildItem -LiteralPath $chosenSub.FullName -Recurse -Filter "manifest.json" | Select-Object -First 1
+        if ($manifests) {
+            $bpFolder = $manifests.Directory
+            Write-Host "Found nested pack in: $($bpFolder.Name)" -ForegroundColor Yellow
+        } else {
+            $bpFolder = $chosenSub
+        }
+    }
+} else {
+    $bpFolder = $packRoots[0]  # if multiple, take first; could add picker later
+}
+
 do {
     $bpName = Read-Host (Get-Text "NameForBP")
     if ($bpName -match '[\\/:*?"<>|]' -or [string]::IsNullOrWhiteSpace($bpName)) {
@@ -316,7 +417,7 @@ if (Test-Path $bpDest) {
     }
 }
 if (-not $skipBP) {
-    Copy-Item $bpFolder.FullName $bpDest -Recurse -Force
+    Copy-Item -LiteralPath $bpFolder.FullName -Destination $bpDest -Recurse -Force
     Write-Host (Get-Text "SuccessBP" $bpName) -ForegroundColor Green
 }
 ShowFooter
@@ -324,7 +425,7 @@ ShowFooter
 # RP - re-list subfolders and reuse the same name
 Clear-Host
 Write-Host (Get-Text "SelectRP") -ForegroundColor Cyan
-Write-Host (Get-Text "Mod")
+Write-Host (Get-Text "Mod" $modBase)
 if (-not $skipBP) {
     Write-Host (Get-Text "BP" $bpName $bpFolder.Name)
 } else {
@@ -342,7 +443,25 @@ do {
     $valid = $rpChoice -match '^\d+$' -and [int]$rpChoice -ge 1 -and [int]$rpChoice -le $subs.Count
     if (-not $valid) { Write-Host (Get-Text "InvalidTryAgain") -ForegroundColor Red }
 } while (-not $valid)
-$rpFolder = $subs[[int]$rpChoice - 1]
+$chosenSub = $subs[[int]$rpChoice - 1]
+
+# Drill down inside the chosen sub to find the actual pack root that has manifest.json
+$packRoots = Get-ChildItem -LiteralPath $chosenSub.FullName -Directory | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "manifest.json") }
+if ($packRoots.Count -eq 0) {
+    if (Test-Path -LiteralPath (Join-Path $chosenSub.FullName "manifest.json")) {
+        $rpFolder = $chosenSub
+    } else {
+        $manifests = Get-ChildItem -LiteralPath $chosenSub.FullName -Recurse -Filter "manifest.json" | Select-Object -First 1
+        if ($manifests) {
+            $rpFolder = $manifests.Directory
+            Write-Host "Found nested pack in: $($rpFolder.Name)" -ForegroundColor Yellow
+        } else {
+            $rpFolder = $chosenSub
+        }
+    }
+} else {
+    $rpFolder = $packRoots[0]
+}
 $rpName = $bpName
 $rpDest = Join-Path $rpDir $rpName
 
@@ -362,7 +481,7 @@ if (Test-Path $rpDest) {
     }
 }
 if (-not $skipRP) {
-    Copy-Item $rpFolder.FullName $rpDest -Recurse -Force
+    Copy-Item -LiteralPath $rpFolder.FullName -Destination $rpDest -Recurse -Force
     Write-Host (Get-Text "SuccessRP" $rpName) -ForegroundColor Green
 } else {
     Write-Host (Get-Text "RP skipped")
@@ -373,8 +492,8 @@ ShowFooter
 Clear-Host
 Write-Host (Get-Text "InstallSummary") -ForegroundColor Cyan
 Write-Host (Get-Text "Mod" $modBase)
-if (-not $skipBP) { Write-Host (Get-Text "BP" $bpName "") } else { Write-Host (Get-Text "BPSkipped") }
-if (-not $skipRP) { Write-Host (Get-Text "BP" $rpName "") } else { Write-Host (Get-Text "RP skipped") }
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) } else { Write-Host (Get-Text "BPSkipped") }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) } else { Write-Host (Get-Text "RP skipped") }
 Write-Host ""
 Write-Host (Get-Text "CurrentCustom")
 Write-Host (Get-Text "BehaviorPacks")
@@ -395,58 +514,38 @@ ShowFooter
 Clear-Host
 Write-Host (Get-Text "SelectWorld") -ForegroundColor Cyan
 Write-Host (Get-Text "Mod" $modBase)
-if (-not $skipBP) { Write-Host (Get-Text "BP" $bpName "") } else { Write-Host (Get-Text "BPSkipped") }
-if (-not $skipRP) { Write-Host (Get-Text "BP" $rpName "") } else { Write-Host (Get-Text "RP skipped") }
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) } else { Write-Host (Get-Text "BPSkipped") }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) } else { Write-Host (Get-Text "RP skipped") }
 Write-Host ""
-:worldLoop while ($true) {
-    $worldList = Get-ChildItem $worldsDir -Directory
-    if ($worldList.Count -eq 0) {
-        Write-Host (Get-Text "NoWorlds")
-        Write-Host (Get-Text "ServerRanOnce")
-        Write-Host ""
-        Write-Host (Get-Text "Options")
-        Write-Host (Get-Text "Refresh")
-        Write-Host (Get-Text "Discard")
-        $wOpt = Read-Host (Get-Text "ChooseOption")
-        if ($wOpt -eq "1") {
-            Clear-Host
-            Write-Host (Get-Text "SelectWorld") -ForegroundColor Cyan
-            Write-Host (Get-Text "Mod" $modBase)
-            if (-not $skipBP) { Write-Host (Get-Text "BP" $bpName "") } else { Write-Host (Get-Text "BPSkipped") }
-            if (-not $skipRP) { Write-Host (Get-Text "BP" $rpName "") } else { Write-Host (Get-Text "RP skipped") }
-            Write-Host ""
-            continue :worldLoop
-        } elseif ($wOpt -eq "2") {
-            if (-not $skipBP -and (Test-Path $bpDest)) { Remove-Item $bpDest -Recurse -Force }
-            if (-not $skipRP -and (Test-Path $rpDest)) { Remove-Item $rpDest -Recurse -Force }
-            if ($Lang -eq "pt") {
-                Write-Host "Alterações descartadas. .mcaddon permanece para nova tentativa."
-            } else {
-                Write-Host "Changes discarded. .mcaddon remains for retry."
-            }
-            exit
-        } else {
-            continue :worldLoop
-        }
-    }
+
+$worldList = Get-ChildItem $worldsDir -Directory
+if ($worldList.Count -gt 0) {
     Write-Host (Get-Text "Worlds")
     for ($i=0; $i -lt $worldList.Count; $i++) {
         Write-Host "$($i+1). $($worldList[$i].Name)"
     }
-    do {
-        $wChoice = Read-Host (Get-Text "ChooseWorldNumber")
-        $valid = $wChoice -match '^\d+$' -and [int]$wChoice -ge 1 -and [int]$wChoice -le $worldList.Count
-        if (-not $valid) { Write-Host (Get-Text "InvalidTryAgain") -ForegroundColor Red }
-    } while (-not $valid)
-    $worldName = $worldList[[int]$wChoice - 1].Name
-    Write-Host (Get-Text "SelectedWorld" $worldName) -ForegroundColor Green
-    ShowFooter
-    break :worldLoop
+    Write-Host ""
 }
+$inputWorld = Read-Host (Get-Text "EnterWorldName")
+if ($inputWorld -match '^\d+$' -and $worldList.Count -gt 0) {
+    $idx = [int]$inputWorld - 1
+    if ($idx -ge 0 -and $idx -lt $worldList.Count) {
+        $worldName = $worldList[$idx].Name
+    } else {
+        $worldName = $inputWorld
+    }
+} else {
+    $worldName = $inputWorld
+}
+Write-Host (Get-Text "SelectedWorld" $worldName) -ForegroundColor Green
+ShowFooter
 
-# Write to world jsons
-$bpWorldJson = Join-Path $worldsDir $worldName "world_behavior_packs.json"
-$rpWorldJson = Join-Path $worldsDir $worldName "world_resource_packs.json"
+$worldDir = Join-Path $worldsDir $worldName
+if (-not (Test-Path $worldDir)) {
+    New-Item -ItemType Directory -Path $worldDir -Force | Out-Null
+}
+$bpWorldJson = Join-Path $worldDir "world_behavior_packs.json"
+$rpWorldJson = Join-Path $worldDir "world_resource_packs.json"
 
 if (-not $skipBP) {
     Write-WorldJson $bpWorldJson $bpInfo.Uuid $bpInfo.Version $bpName
@@ -462,9 +561,9 @@ Write-Host (Get-Text "DeletedOriginal" $mcaddon.Name)
 Clear-Host
 Write-Host (Get-Text "Complete") -ForegroundColor Green
 Write-Host (Get-Text "Mod" $modBase)
-if (-not $skipBP) { Write-Host (Get-Text "BP" $bpName "") } else { Write-Host (Get-Text "BPSkipped") }
-if (-not $skipRP) { Write-Host (Get-Text "BP" $rpName "") } else { Write-Host (Get-Text "RP skipped") }
-Write-Host (Get-Text "World" $worldName)   # note: may need adjust
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) } else { Write-Host (Get-Text "BPSkipped") }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) } else { Write-Host (Get-Text "RP skipped") }
+Write-Host (Get-Text "World" $worldName)
 Write-Host ""
 Write-Host (Get-Text "Success")
 Write-Host (Get-Text "BPAndRPRegistered" $worldName)
@@ -475,7 +574,7 @@ ShowFooter
 # List from jsons
 Write-Host (Get-Text "CurrentlyInstalled" $worldName)
 if (Test-Path $bpWorldJson) {
-    $bpPacks = Get-Content $bpWorldJson -Raw | ConvertFrom-Json
+    $bpPacks = [System.IO.File]::ReadAllText($bpWorldJson, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
     if ($bpPacks) {
         $bpPacks | ForEach-Object {
             $n = if ($_.name) { $_.name } else { "" }
@@ -484,7 +583,7 @@ if (Test-Path $bpWorldJson) {
     }
 }
 if (Test-Path $rpWorldJson) {
-    $rpPacks = Get-Content $rpWorldJson -Raw | ConvertFrom-Json
+    $rpPacks = [System.IO.File]::ReadAllText($rpWorldJson, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
     if ($rpPacks) {
         $rpPacks | ForEach-Object {
             $n = if ($_.name) { $_.name } else { "" }

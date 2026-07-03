@@ -1,7 +1,7 @@
 # BDS-Mcpack-Installer.ps1
-# Ferramenta para instalar arquivos .mcpack (único ou BP/RP separados)
-# Fluxo similar à ferramenta .mcaddon com todas as melhorias anteriores
-# Execute a partir da raiz do servidor: pwsh .\TOOLS\BDS-Mcpack-Installer.ps1
+# Ferramenta para instalar arquivos .mcpack (unico ou BP/RP separados)
+# Fluxo similar a ferramenta .mcaddon com todas as melhorias anteriores
+# Run from the server root: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcpack-Installer.ps1"
 
 param(
     [ValidateSet("en","pt")]
@@ -15,15 +15,21 @@ $root = Split-Path -Parent $scriptDir
 
 if (-not (Test-Path (Join-Path $root "bedrock_server.exe"))) {
     if ($Lang -eq "pt") {
-        Write-Host "Erro: Não foi possível encontrar o bedrock_server.exe. Execute a partir da raiz do servidor." -ForegroundColor Red
+        Write-Host "Erro: Nao foi possivel encontrar o bedrock_server.exe na pasta pai de TOOLS." -ForegroundColor Red
+        Write-Host 'Execute o script a partir da raiz do servidor como: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcpack-Installer.ps1"'
     } else {
-        Write-Host "Error: Could not find bedrock_server.exe. Run from server root." -ForegroundColor Red
+        Write-Host "Error: Could not find bedrock_server.exe in parent of TOOLS folder." -ForegroundColor Red
+        Write-Host 'Run the script from the server root like: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Mcpack-Installer.ps1"'
     }
     exit 1
 }
 
 function Get-Text {
-    param([string]$Key, [object[]]$Args = @())
+    param(
+        [string]$Key,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [object[]]$Args
+    )
     if ($Lang -eq "pt") {
         $base = switch ($Key) {
             "HeaderTitle" { "=== Instalador Mcpack Bedrock ===" }
@@ -31,33 +37,33 @@ function Get-Text {
             "Mod" { "Mod: {0}" }
             "BP" { "BP: {0}" }
             "RP" { "RP: {0}" }
-            "Footer" { "Use números. Ctrl+C para sair a qualquer momento." }
+            "Footer" { "Use numeros. Ctrl+C para sair a qualquer momento." }
             "NoMcpack" { "Nenhum .mcpack encontrado em {0}" }
             "SelectMcpack" { "=== Selecionar arquivos .mcpack ===" }
-            "AvailableMcpack" { "Arquivos .mcpack disponíveis:" }
-            "HowProvided" { "Como este mod é fornecido?" }
-            "Single" { "1. Único .mcpack que é o mod (BP ou RP ou ambos dentro)" }
+            "AvailableMcpack" { "Arquivos .mcpack disponiveis:" }
+            "HowProvided" { "Como este mod e fornecido?" }
+            "Single" { "1. Unico .mcpack que e o mod (BP ou RP ou ambos dentro)" }
             "Two" { "2. Dois .mcpack separados (um BP, um RP)" }
             "Choose1or2" { "Escolha 1 ou 2" }
-            "ChooseMcpackNumber" { "Escolha o número do .mcpack" }
-            "Invalid" { "Inválido." }
+            "ChooseMcpackNumber" { "Escolha o numero do .mcpack" }
+            "Invalid" { "Invalido." }
             "UnpackedTo" { "Descompactado para {0}" }
-            "ContainsMultiple" { "`nEste .mcpack contém múltiplos packs dentro:" }
-            "ChooseForBP" { "Escolha número para Behavior Pack (0 para nenhum)" }
-            "ChooseForRP" { "Escolha número para Resource Pack (0 para nenhum)" }
-            "SinglePackDetected" { "`nPack único detectado neste .mcpack." }
-            "IsBPOrRP" { "É Behavior Pack ou Resource Pack?" }
+            "ContainsMultiple" { "`nEste .mcpack contem multiplos packs dentro:" }
+            "ChooseForBP" { "Escolha numero para Behavior Pack (0 para nenhum)" }
+            "ChooseForRP" { "Escolha numero para Resource Pack (0 para nenhum)" }
+            "SinglePackDetected" { "`nPack unico detectado neste .mcpack." }
+            "IsBPOrRP" { "E Behavior Pack ou Resource Pack?" }
             "ChooseBP" { "1. Behavior Pack (BP)" }
             "ChooseRP" { "2. Resource Pack (RP)" }
             "ChooseMcpackForBP" { "`nEscolha .mcpack para Behavior Pack:" }
-            "NumberForBP" { "Número para BP .mcpack (0 para nenhum)" }
+            "NumberForBP" { "Numero para BP .mcpack (0 para nenhum)" }
             "ChooseSubForBP" { "Escolha sub para BP" }
             "NameForBP" { "Nome para este BP na pasta oficial" }
             "ChooseMcpackForRP" { "`nEscolha .mcpack para Resource Pack:" }
-            "NumberForRP" { "Número para RP .mcpack (0 para nenhum)" }
+            "NumberForRP" { "Numero para RP .mcpack (0 para nenhum)" }
             "ChooseSubForRP" { "Escolha sub para RP" }
             "NameForRP" { "Nome para este RP na pasta oficial" }
-            "InstallSummary" { "=== Resumo da Instalação ===" }
+            "InstallSummary" { "=== Resumo da Instalacao ===" }
             "ModProcessed" { "Mod processado." }
             "CurrentCustom" { "Packs oficiais atuais (apenas custom):" }
             "BehaviorPacks" { "Behavior packs:" }
@@ -67,11 +73,15 @@ function Get-Text {
             "NoWorlds" { "Nenhum mundo encontrado" }
             "ServerRanOnce" { "o server.exe foi executado pelo menos uma vez???" }
             "Refresh" { "1. Atualizar lista de mundos" }
-            "Discard" { "2. Descartar alterações e sair (remove packs instalados, mantém .mcpack)" }
-            "ChooseOption" { "Escolha a opção" }
+            "Discard" { "2. Descartar alteracoes e sair (remove packs instalados, mantem .mcpack)" }
+            "ChooseOption" { "Escolha a opcao" }
             "Worlds" { "Mundos:" }
-            "ChooseWorldNumber" { "Escolha o número do mundo" }
+            "ChooseWorldNumber" { "Escolha o numero do mundo" }
             "SelectedWorld" { "Mundo selecionado: {0}" }
+            "World" { "Mundo: {0}" }
+            "BPOnly" { "BP: {0}" }
+            "RPOnly" { "RP: {0}" }
+            "EnterWorldName" { "Digite o nome do mundo ou numero da lista" }
             "Complete" { "=== Completo ===" }
             "Success" { "=== Sucesso ===" }
             "PacksRegistered" { "Packs registrados para o mundo '{0}'." }
@@ -129,6 +139,10 @@ function Get-Text {
             "Worlds" { "Worlds:" }
             "ChooseWorldNumber" { "Choose world number" }
             "SelectedWorld" { "Selected world: {0}" }
+            "World" { "World: {0}" }
+            "BPOnly" { "BP: {0}" }
+            "RPOnly" { "RP: {0}" }
+            "EnterWorldName" { "Enter world name or number from list" }
             "Complete" { "=== Complete ===" }
             "Success" { "=== Success ===" }
             "PacksRegistered" { "Packs registered for world '{0}'." }
@@ -139,8 +153,12 @@ function Get-Text {
             default { $Key }
         }
     }
-    if ($Args.Count -gt 0) {
-        return ($base -f $Args)
+    try {
+        if ($Args -and $Args.Count -gt 0) {
+            return ($base -f $Args)
+        }
+    } catch {
+        return $base
     }
     return $base
 }
@@ -220,9 +238,14 @@ function Copy-PackWithCheck($sourceFolder, $destDir, $name, $packType) {
     $dest = Join-Path $destDir $name
     $skipped = $false
     if (Test-Path $dest) {
-        Write-Host "Folder '$name' already exists in $packType packs." -ForegroundColor Yellow
-        $ow = Read-Host "Overwrite? (y/n)"
-        if ($ow -eq 'y' -or $ow -eq 'Y') {
+        if ($Lang -eq "pt") {
+            Write-Host "Pasta '$name' ja existe em $packType packs." -ForegroundColor Yellow
+            $ow = Read-Host "Sobrescrever? (s/n)"
+        } else {
+            Write-Host "Folder '$name' already exists in $packType packs." -ForegroundColor Yellow
+            $ow = Read-Host "Overwrite? (y/n)"
+        }
+        if ($ow -eq 'y' -or $ow -eq 'Y' -or $ow -eq 's' -or $ow -eq 'S') {
             Remove-Item $dest -Recurse -Force
             Write-Host "Overwriting..." -ForegroundColor Yellow
         } else {
@@ -233,7 +256,11 @@ function Copy-PackWithCheck($sourceFolder, $destDir, $name, $packType) {
     if (-not $skipped) {
         New-Item -Path $dest -ItemType Directory -Force | Out-Null
         Copy-Item -Path (Join-Path $sourceFolder '*') -Destination $dest -Recurse -Force
-        Write-Host "Successfully installed $packType as '$name' in $($packType.ToLower())_packs" -ForegroundColor Green
+        if ($Lang -eq "pt") {
+            Write-Host "Instalado com sucesso $packType como '$name' em $($packType.ToLower())_packs" -ForegroundColor Green
+        } else {
+            Write-Host "Successfully installed $packType as '$name' in $($packType.ToLower())_packs" -ForegroundColor Green
+        }
     }
     return @{
         Dest = $dest
@@ -273,9 +300,9 @@ $rpDest = $null
 if ($setupType -eq "1") {
     # Single file
     do {
-        $choice = Read-Host "Choose the .mcpack number"
+        $choice = Read-Host (Get-Text "ChooseMcpackNumber")
         $valid = $choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $mcpacks.Count
-        if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+        if (-not $valid) { Write-Host (Get-Text "Invalid") -ForegroundColor Red }
     } while (-not $valid)
     $chosenMcpack = $mcpacks[[int]$choice - 1]
     $usedMcpackFiles += $chosenMcpack
@@ -301,59 +328,59 @@ if ($setupType -eq "1") {
 
     if ($packRoots.Count -gt 1) {
         # Contains both
-        Write-Host "`nThis .mcpack contains multiple packs inside:"
+        Write-Host (Get-Text "ContainsMultiple")
         for ($i=0; $i -lt $packRoots.Count; $i++) {
             Write-Host "$($i+1). $($packRoots[$i].Name)"
         }
         do {
             $bSub = Read-Host "Choose number for Behavior Pack (0 for none)"
             $valid = $bSub -match '^\d+$' -and [int]$bSub -ge 0 -and [int]$bSub -le $packRoots.Count
-            if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+            if (-not $valid) { Write-Host (Get-Text "Invalid") -ForegroundColor Red }
         } while (-not $valid)
         if ($bSub -ne "0") {
             $bpFolderPath = $packRoots[[int]$bSub-1].FullName
-            $bpName = Read-Host "Name for this BP in official folder"
+            $bpName = Read-Host (Get-Text "NameForBP")
         }
 
         do {
             $rSub = Read-Host "Choose number for Resource Pack (0 for none)"
             $valid = $rSub -match '^\d+$' -and [int]$rSub -ge 0 -and [int]$rSub -le $packRoots.Count
-            if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+            if (-not $valid) { Write-Host (Get-Text "Invalid") -ForegroundColor Red }
         } while (-not $valid)
         if ($rSub -ne "0") {
             $rpFolderPath = $packRoots[[int]$rSub-1].FullName
-            $rpName = Read-Host "Name for this RP in official folder"
+            $rpName = Read-Host (Get-Text "NameForRP")
         }
     } else {
         # Single pack
         $singleRoot = $packRoots[0].FullName
-        Write-Host "`nSingle pack detected in this .mcpack."
-        Write-Host "Is this a Behavior Pack or Resource Pack?"
-        Write-Host "1. Behavior Pack (BP)"
-        Write-Host "2. Resource Pack (RP)"
-        $typeChoice = Read-Host "Choose 1 or 2"
+        Write-Host (Get-Text "SinglePackDetected")
+        Write-Host (Get-Text "IsBPOrRP")
+        Write-Host (Get-Text "ChooseBP")
+        Write-Host (Get-Text "ChooseRP")
+        $typeChoice = Read-Host (Get-Text "Choose1or2")
         if ($typeChoice -eq "1") {
             $bpFolderPath = $singleRoot
-            $bpName = Read-Host "Name for this BP in official folder"
+            $bpName = Read-Host (Get-Text "NameForBP")
         } elseif ($typeChoice -eq "2") {
             $rpFolderPath = $singleRoot
-            $rpName = Read-Host "Name for this RP in official folder"
+            $rpName = Read-Host (Get-Text "NameForRP")
         } else {
-            Write-Host "Invalid."
+            Write-Host (Get-Text "Invalid")
             exit
         }
     }
 } else {
     # Two separate files
     # BP
-    Write-Host "`nChoose .mcpack for Behavior Pack:"
+    Write-Host (Get-Text "ChooseMcpackForBP")
     for ($i=0; $i -lt $mcpacks.Count; $i++) {
         Write-Host "$($i+1). $($mcpacks[$i].Name)"
     }
     do {
-        $bC = Read-Host "Number for BP .mcpack (0 for none)"
+        $bC = Read-Host (Get-Text "NumberForBP")
         $valid = $bC -match '^\d+$' -and [int]$bC -ge 0 -and [int]$bC -le $mcpacks.Count
-        if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+        if (-not $valid) { Write-Host (Get-Text "Invalid") -ForegroundColor Red }
     } while (-not $valid)
     if ($bC -ne "0") {
         $bpMc = $mcpacks[[int]$bC - 1]
@@ -378,14 +405,14 @@ if ($setupType -eq "1") {
     }
 
     # RP
-    Write-Host "`nChoose .mcpack for Resource Pack:"
+    Write-Host (Get-Text "ChooseMcpackForRP")
     for ($i=0; $i -lt $mcpacks.Count; $i++) {
         Write-Host "$($i+1). $($mcpacks[$i].Name)"
     }
     do {
-        $rC = Read-Host "Number for RP .mcpack (0 for none)"
+        $rC = Read-Host (Get-Text "NumberForRP")
         $valid = $rC -match '^\d+$' -and [int]$rC -ge 0 -and [int]$rC -le $mcpacks.Count
-        if (-not $valid) { Write-Host "Invalid." -ForegroundColor Red }
+        if (-not $valid) { Write-Host (Get-Text "Invalid") -ForegroundColor Red }
     } while (-not $valid)
     if ($rC -ne "0") {
         $rpMc = $mcpacks[[int]$rC - 1]
@@ -399,7 +426,7 @@ if ($setupType -eq "1") {
         $rRoots = Get-ChildItem $rExtract -Directory | Where-Object { Test-Path (Join-Path $_.FullName "manifest.json") }
         if ($rRoots.Count -gt 1) {
             for ($i=0; $i -lt $rRoots.Count; $i++) { Write-Host "$($i+1). $($rRoots[$i].Name)" }
-            $sr = Read-Host "Choose sub for RP"
+            $sr = Read-Host (Get-Text "ChooseSubForRP")
             $rpFolderPath = $rRoots[[int]$sr-1].FullName
         } else {
             $rpFolderPath = if ($rRoots.Count -eq 1) { $rRoots[0].FullName } else { $rExtract }
@@ -429,20 +456,20 @@ ShowFooter
 
 # === Summary and Cleanup ===
 Clear-Host
-Write-Host "=== Installation Summary ===" -ForegroundColor Cyan
-Write-Host "Mod processed."
-if (-not $skipBP) { Write-Host "BP: $bpName (in behavior_packs)" }
-if (-not $skipRP) { Write-Host "RP: $rpName (in resource_packs)" }
+Write-Host (Get-Text "InstallSummary") -ForegroundColor Cyan
+Write-Host (Get-Text "ModProcessed")
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) }
 Write-Host ""
-Write-Host "Current official (custom only):"
+Write-Host (Get-Text "CurrentCustom")
+Write-Host (Get-Text "BehaviorPacks")
 $excluded = 'vanilla*', 'chemistry*', 'editor*', 'server_*', 'experimental_*'
-Write-Host "Behavior packs:"
 Get-ChildItem $bpDir -Directory | Where-Object { 
     $n = $_.Name
     ($excluded | Where-Object { $n -like $_ }).Count -eq 0
 } | ForEach-Object { "  $($_.Name)" }
 
-Write-Host "Resource packs:"
+Write-Host (Get-Text "ResourcePacks")
 Get-ChildItem $rpDir -Directory | Where-Object { 
     $n = $_.Name
     ($excluded | Where-Object { $n -like $_ }).Count -eq 0
@@ -451,87 +478,73 @@ Get-ChildItem $rpDir -Directory | Where-Object {
 # Delete the processed .mcpack files
 foreach ($f in ($usedMcpackFiles | Select-Object -Unique)) {
     Remove-Item $f.FullName -Force -ErrorAction SilentlyContinue
-    Write-Host "Deleted .mcpack: $($f.Name)"
+    Write-Host (Get-Text "DeletedMcpack" $f.Name)
 }
 
 ShowFooter
 
 # === World Selection with improvements ===
 Clear-Host
-Write-Host "=== Select World ===" -ForegroundColor Cyan
-Write-Host "Mod processed."
-if (-not $skipBP) { Write-Host "BP: $bpName" }
-if (-not $skipRP) { Write-Host "RP: $rpName" }
+Write-Host (Get-Text "SelectWorld") -ForegroundColor Cyan
+Write-Host (Get-Text "ModProcessed")
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) }
 Write-Host ""
 
-:worldLoop while ($true) {
-    $worldList = Get-ChildItem $worldsDir -Directory
-    if ($worldList.Count -eq 0) {
-        Write-Host "No worlds found"
-        Write-Host "was the server.exe ran atleast once???"
-        Write-Host ""
-        Write-Host "Options:"
-        Write-Host "1. Refresh world list"
-        Write-Host "2. Discard changes and leave (removes installed packs, keeps .mcpack)"
-        $wOpt = Read-Host "Choose option"
-        if ($wOpt -eq "1") {
-            Clear-Host
-            Write-Host "=== Select World ===" -ForegroundColor Cyan
-            Write-Host "Mod processed."
-            if (-not $skipBP) { Write-Host "BP: $bpName" }
-            if (-not $skipRP) { Write-Host "RP: $rpName" }
-            Write-Host ""
-            continue :worldLoop
-        } elseif ($wOpt -eq "2") {
-            if (-not $skipBP -and (Test-Path $bpDest)) { Remove-Item $bpDest -Recurse -Force }
-            if (-not $skipRP -and (Test-Path $rpDest)) { Remove-Item $rpDest -Recurse -Force }
-            Write-Host "Changes discarded. .mcpack(s) remain for retry."
-            exit
-        } else {
-            continue :worldLoop
-        }
-    }
-    Write-Host "Worlds:"
+$worldList = Get-ChildItem $worldsDir -Directory
+if ($worldList.Count -gt 0) {
+    Write-Host (Get-Text "Worlds")
     for ($i=0; $i -lt $worldList.Count; $i++) {
         Write-Host "$($i+1). $($worldList[$i].Name)"
     }
-    do {
-        $wChoice = Read-Host "Choose world number"
-        $valid = $wChoice -match '^\d+$' -and [int]$wChoice -ge 1 -and [int]$wChoice -le $worldList.Count
-        if (-not $valid) { Write-Host "Invalid choice, try again." -ForegroundColor Red }
-    } while (-not $valid)
-    $worldName = $worldList[[int]$wChoice - 1].Name
-    Write-Host "Selected world: $worldName" -ForegroundColor Green
-    break :worldLoop
+    Write-Host ""
 }
+$inputWorld = Read-Host (Get-Text "EnterWorldName")
+if ($inputWorld -match '^\d+$' -and $worldList.Count -gt 0) {
+    $idx = [int]$inputWorld - 1
+    if ($idx -ge 0 -and $idx -lt $worldList.Count) {
+        $worldName = $worldList[$idx].Name
+    } else {
+        $worldName = $inputWorld
+    }
+} else {
+    $worldName = $inputWorld
+}
+Write-Host (Get-Text "SelectedWorld" $worldName) -ForegroundColor Green
+ShowFooter
+
+$worldDir = Join-Path $worldsDir $worldName
+if (-not (Test-Path $worldDir)) {
+    New-Item -ItemType Directory -Path $worldDir -Force | Out-Null
+}
+$bpWorldJson = Join-Path $worldDir "world_behavior_packs.json"
+$rpWorldJson = Join-Path $worldDir "world_resource_packs.json"
 
 ShowFooter
 
 # Get UUIDs and register
 if (-not $skipBP) {
     $bpInfo = Get-PackInfo $bpDest
-    $bpWorldJson = Join-Path $worldsDir $worldName "world_behavior_packs.json"
     Write-WorldJson $bpWorldJson $bpInfo.Uuid $bpInfo.Version $bpName
 }
 if (-not $skipRP) {
     $rpInfo = Get-PackInfo $rpDest
-    $rpWorldJson = Join-Path $worldsDir $worldName "world_resource_packs.json"
     Write-WorldJson $rpWorldJson $rpInfo.Uuid $rpInfo.Version $rpName
 }
 
 Clear-Host
-Write-Host "=== Complete ===" -ForegroundColor Green
-Write-Host "Mod processed."
-if (-not $skipBP) { Write-Host "BP: $bpName" } else { Write-Host "BP: Skipped" }
-if (-not $skipRP) { Write-Host "RP: $rpName" } else { Write-Host "RP: Skipped" }
-Write-Host "World: $worldName"
+Write-Host (Get-Text "Complete") -ForegroundColor Green
+Write-Host (Get-Text "ModProcessed")
+if (-not $skipBP) { Write-Host (Get-Text "BPOnly" $bpName) } else { Write-Host "BP: Skipped" }
+if (-not $skipRP) { Write-Host (Get-Text "RPOnly" $rpName) } else { Write-Host "RP: Skipped" }
+Write-Host (Get-Text "World" $worldName)
 Write-Host ""
-Write-Host "=== Success ==="
-Write-Host "Packs registered for world '$worldName'."
-if (-not $skipBP) { Write-Host "BP name stored: $bpName" }
-if (-not $skipRP) { Write-Host "RP name stored: $rpName" }
+Write-Host (Get-Text "Success")
+Write-Host (Get-Text "PacksRegistered" $worldName)
+if (-not $skipBP) { Write-Host (Get-Text "NameStoredBP" $bpName) }
+if (-not $skipRP) { Write-Host (Get-Text "NameStoredRP" $rpName) }
 
-Write-Host "`nCurrently installed in world '$worldName' (from jsons):"
+Write-Host (Get-Text "CurrentlyInstalled" $worldName)
 if (-not $skipBP -and (Test-Path $bpWorldJson)) {
     $bpPacks = Get-Content $bpWorldJson -Raw | ConvertFrom-Json
     if ($bpPacks) {
@@ -552,5 +565,5 @@ if (-not $skipRP -and (Test-Path $rpWorldJson)) {
 }
 
 Write-Host ""
-Write-Host "Restart the server to test." -ForegroundColor Yellow
+Write-Host (Get-Text "RestartServer") -ForegroundColor Yellow
 ShowFooter

@@ -1,8 +1,8 @@
 # BDS-Installers-Launcher.ps1
 # Menu principal para ferramentas do Bedrock Dedicated Server (BDS).
 # Forma principal de executar: clique duplo no BDS-ADDON INSTALLER.bat
-# (ou diretamente: pwsh .\TOOLS\BDS-Installers-Launcher.ps1)
-# Fácil de estender: adicione ao array $installers abaixo.
+# (or directly: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Installers-Launcher.ps1")
+# Facil de estender: adicione ao array $installers abaixo.
 
 param(
     [ValidateSet("en","pt")]
@@ -26,7 +26,7 @@ if (-not $Lang) {
     Write-Host "=== Escolha o idioma / Choose language ===" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "🇺🇸  1. English"
-    Write-Host "🇧🇷  2. Português (Brasil)"
+    Write-Host "🇧🇷  2. Portugues (Brasil)"
     Write-Host ""
     $langChoice = Read-Host "Digite 1 ou 2 / Enter 1 or 2"
     if ($langChoice -eq "2") {
@@ -42,12 +42,12 @@ if ($Lang -eq "pt") {
         @{
             Name = "Instalar arquivos .mcaddon"
             Script = "BDS-Mcaddon-Installer.ps1"
-            Description = "Para pacotes .mcaddon (geralmente contém BP + RP)"
+            Description = "Para pacotes .mcaddon (geralmente contem BP + RP)"
         },
         @{
             Name = "Instalar arquivos .mcpack"
             Script = "BDS-Mcpack-Installer.ps1"
-            Description = "Para arquivos .mcpack individuais (BP ou RP único)"
+            Description = "Para arquivos .mcpack individuais (BP ou RP unico)"
         },
         @{
             Name = "Desinstalar um mod"
@@ -58,10 +58,10 @@ if ($Lang -eq "pt") {
         # , @{ Name = "Install XYZ"; Script = "BDS-XYZ-Installer.ps1"; Description = "Description here" }
     )
     $headerTitle = "=== Ferramentas Bedrock ==="
-    $availableLabel = "Ferramentas disponíveis:"
+    $availableLabel = "Ferramentas disponiveis:"
     $exitLabel = "0. Sair"
-    $chooseLabel = "Escolha uma opção"
-    $invalidMsg = "Opção inválida."
+    $chooseLabel = "Escolha uma opcao"
+    $invalidMsg = "Opcao invalida."
     $pressEnterMsg = "Pressione Enter para tentar novamente"
     $runAnotherMsg = "Executar outra ferramenta? (s/n)"
     $exitingMsg = "Saindo..."
@@ -104,7 +104,7 @@ function ShowFooter {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
     if ($Lang -eq "pt") {
-        Write-Host "Selecione uma opção. Ctrl+C para sair." -ForegroundColor DarkGray
+        Write-Host "Selecione uma opcao. Ctrl+C para sair." -ForegroundColor DarkGray
     } else {
         Write-Host "Select an option. Ctrl+C to exit." -ForegroundColor DarkGray
     }

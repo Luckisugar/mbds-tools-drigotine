@@ -2,8 +2,8 @@
 # Ferramenta para desinstalar mods de um mundo.
 # Remove entradas dos arquivos world_behavior_packs.json / world_resource_packs.json
 # Opcionalmente deleta as pastas correspondentes de behavior_packs / resource_packs.
-# Combina com o estilo, robustez e UX das ferramentas de instalação.
-# Execute a partir da raiz do servidor: pwsh .\TOOLS\BDS-Uninstaller.ps1
+# Combina com o estilo, robustez e UX das ferramentas de instalacao.
+# Run from the server root: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Uninstaller.ps1"
 
 param(
     [ValidateSet("en","pt")]
@@ -17,17 +17,21 @@ $root = Split-Path -Parent $scriptDir
 
 if (-not (Test-Path (Join-Path $root "bedrock_server.exe"))) {
     if ($Lang -eq "pt") {
-        Write-Host "Erro: Não foi possível encontrar o bedrock_server.exe na pasta pai de TOOLS." -ForegroundColor Red
-        Write-Host "Execute o script a partir da raiz do servidor como: pwsh .\TOOLS\BDS-Uninstaller.ps1"
+        Write-Host "Erro: Nao foi possivel encontrar o bedrock_server.exe na pasta pai de TOOLS." -ForegroundColor Red
+        Write-Host 'Execute o script a partir da raiz do servidor como: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Uninstaller.ps1"'
     } else {
         Write-Host "Error: Could not find bedrock_server.exe in parent of TOOLS folder." -ForegroundColor Red
-        Write-Host "Run the script from the server root like: pwsh .\TOOLS\BDS-Uninstaller.ps1"
+        Write-Host 'Run the script from the server root like: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Uninstaller.ps1"'
     }
     exit 1
 }
 
 function Get-Text {
-    param([string]$Key, [object[]]$Args = @())
+    param(
+        [string]$Key,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [object[]]$Args
+    )
     if ($Lang -eq "pt") {
         $base = switch ($Key) {
             "HeaderTitle" { "=== Desinstalador Bedrock ===" }
@@ -39,33 +43,33 @@ function Get-Text {
             "Exit" { "2. Sair" }
             "Choose" { "Escolha" }
             "Worlds" { "Mundos:" }
-            "ChooseWorldNumber" { "Escolha o número do mundo" }
-            "InvalidChoice" { "Escolha inválida." }
+            "ChooseWorldNumber" { "Escolha o numero do mundo" }
+            "InvalidChoice" { "Escolha invalida." }
             "InstalledPacks" { "=== Packs Instalados em {0} ===" }
             "NoCustomPacks" { "Nenhum pack custom encontrado registrado para o mundo '{0}'." }
             "NothingToUninstall" { "Nada para desinstalar." }
             "ChoosePack" { "Escolha o pack para desinstalar" }
             "Cancelled" { "Cancelado." }
-            "UninstallConfirmation" { "=== Confirmação de Desinstalação ===" }
+            "UninstallConfirmation" { "=== Confirmacao de Desinstalacao ===" }
             "World" { "Mundo: {0}" }
             "Pack" { "Pack: {0}" }
             "BehaviorPackUUID" { "  Behavior Pack UUID:  {0}   v{1}" }
             "ResourcePackUUID" { "  Resource Pack UUID:  {0}   v{1}" }
             "FoundOnDisk" { "Encontrado no disco:" }
-            "DeleteFolders" { "Deletar as pastas do pack do disco também? (s/n)" }
-            "NoFoldersFound" { "Nenhuma pasta correspondente encontrada no disco (já removida ou nome de pasta diferente)." -ForegroundColor Yellow }
+            "DeleteFolders" { "Deletar as pastas do pack do disco tambem? (s/n)" }
+            "NoFoldersFound" { "Nenhuma pasta correspondente encontrada no disco (ja removida ou nome de pasta diferente)." -ForegroundColor Yellow }
             "ThisWill" { "Isso vai:" }
             "RemoveRegistration" { "  - Remover o registro dos arquivos json do mundo" }
             "DeleteFoldersAbove" { "  - DELETAR as pastas acima" }
             "LeaveFolders" { "  - Deixar as pastas no disco (apenas remover o registro)" }
             "Proceed" { "Prosseguir? (s/n)" }
             "DeletedFolder" { "Pasta deletada: {0}" }
-            "UninstallComplete" { "=== Desinstalação Completa ===" }
+            "UninstallComplete" { "=== Desinstalacao Completa ===" }
             "Removed" { "Removido: {0}" }
             "FoldersDeleted" { "Pastas dos packs foram deletadas." }
             "FoldersLeft" { "Pastas dos packs foram deixadas no disco." }
             "UpdatedWorldFiles" { "Arquivos do mundo atualizados:" }
-            "RestartServer" { "Reinicie o servidor para aplicar as alterações." }
+            "RestartServer" { "Reinicie o servidor para aplicar as alteracoes." }
             "Done" { "Pronto." }
             default { $Key }
         }
@@ -111,8 +115,12 @@ function Get-Text {
             default { $Key }
         }
     }
-    if ($Args.Count -gt 0) {
-        return ($base -f $Args)
+    try {
+        if ($Args -and $Args.Count -gt 0) {
+            return ($base -f $Args)
+        }
+    } catch {
+        return $base
     }
     return $base
 }
