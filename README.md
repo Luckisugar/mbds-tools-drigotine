@@ -25,6 +25,7 @@ Os scripts cuidam de:
 - Descompactar
 - Copiar para `behavior_packs` / `resource_packs`
 - Registrar UUIDs nos JSONs do seu mundo `world_behavior_packs.json` e `world_resource_packs.json`
+- Desinstalar mods
 
 ## Requisitos
 
@@ -34,26 +35,10 @@ Os scripts cuidam de:
 
 ## Vídeo de Demonstração
 
-TA PRA FAZER O VIDEO AINDA.
+https://youtu.be/0bPNz-NDYRg?si=llTP2ZDBA0yB53Zi
 
-## Estrutura de Pastas
-
-```
-BDS drigotine/
-├── BDS-ADDON INSTALLER.bat
-├── .gitignore
-├── README.md
-└── TOOLS/
-    ├── BDS-Installers-Launcher.ps1
-    ├── BDS-Mcaddon-Installer.ps1
-    ├── BDS-Mcpack-Installer.ps1
-    └── BDS-Uninstaller.ps1
-```
-
-
-
-Usuários só precisam: extrair, rodar o .exe ou o .bat.
-se quiser, instala mods via o instalador.
+Usuários só precisam: baixar o drigotine server, rodar o bedrock-server.exe.
+se quiser, instala mods via o instalador BDS-ADDON-INSTALLER.bat.
 
 **Atenção**: Nunca delete os tools, worlds ou o .bat. vai quebrar tudo zé.
 
