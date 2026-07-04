@@ -57,7 +57,7 @@ function Get-Text {
             "ResourcePackUUID" { "  Resource Pack UUID:  {0}   v{1}" }
             "FoundOnDisk" { "Encontrado no disco:" }
             "DeleteFolders" { "Deletar as pastas do pack do disco tambem? (s/n)" }
-            "NoFoldersFound" { "Nenhuma pasta correspondente encontrada no disco (ja removida ou nome de pasta diferente)." -ForegroundColor Yellow }
+            "NoFoldersFound" { "Nenhuma pasta correspondente encontrada no disco (ja removida ou nome de pasta diferente)." }
             "ThisWill" { "Isso vai:" }
             "RemoveRegistration" { "  - Remover o registro dos arquivos json do mundo" }
             "DeleteFoldersAbove" { "  - DELETAR as pastas acima" }
@@ -71,6 +71,7 @@ function Get-Text {
             "UpdatedWorldFiles" { "Arquivos do mundo atualizados:" }
             "RestartServer" { "Reinicie o servidor para aplicar as alteracoes." }
             "Done" { "Pronto." }
+            "Footer" { "Selecione uma opcao. Ctrl+C para sair." }
             default { $Key }
         }
     } else {
@@ -112,6 +113,7 @@ function Get-Text {
             "UpdatedWorldFiles" { "Updated world files:" }
             "RestartServer" { "Restart the server to apply changes." }
             "Done" { "Done." }
+            "Footer" { "Select an option. Ctrl+C to exit." }
             default { $Key }
         }
     }

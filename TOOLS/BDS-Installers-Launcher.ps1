@@ -2,7 +2,8 @@
 # Menu principal para ferramentas do Bedrock Dedicated Server (BDS).
 # Forma principal de executar: clique duplo no BDS-ADDON INSTALLER.bat
 # (or directly: powershell -ExecutionPolicy Bypass -File ".\TOOLS\BDS-Installers-Launcher.ps1")
-# Facil de estender: adicione ao array $installers abaixo.
+# Easy to extend: add to the $installers array below.
+# New: BDS-Mod-Manager.ps1 to check existing mods and automatically determine/set load order.
 
 param(
     [ValidateSet("en","pt")]
@@ -53,6 +54,11 @@ if ($Lang -eq "pt") {
             Name = "Desinstalar um mod"
             Script = "BDS-Uninstaller.ps1"
             Description = "Remover registro de um mundo + opcionalmente deletar pastas dos packs"
+        },
+        @{
+            Name = "Verificar e Gerenciar Mods (ordem)"
+            Script = "BDS-Mod-Manager.ps1"
+            Description = "Listar mods instalados, verificar e auto-reordenar carregamento (dependencias)"
         }
         # To add a new one in the future:
         # , @{ Name = "Install XYZ"; Script = "BDS-XYZ-Installer.ps1"; Description = "Description here" }
@@ -81,6 +87,11 @@ if ($Lang -eq "pt") {
             Name = "Uninstall a mod"
             Script = "BDS-Uninstaller.ps1"
             Description = "Remove registration from a world + optionally delete pack folders"
+        },
+        @{
+            Name = "Check & Manage Mods (load order)"
+            Script = "BDS-Mod-Manager.ps1"
+            Description = "List installed mods, check and auto-reorder load order based on dependencies"
         }
     )
     $headerTitle = "=== Bedrock Tools ==="
